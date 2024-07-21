@@ -1,2 +1,0 @@
-# Armando
-A beautiful project =)
