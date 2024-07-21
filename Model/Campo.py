@@ -1,6 +1,5 @@
-
-from Entities import EntityGroup
-from Materials import Fluid
+from .Materials import Fluid
+from .Entities import EntityGroup
 
 class Campo():
     def __init__(self, composition: Fluid, size:tuple):
@@ -8,6 +7,8 @@ class Campo():
 
         self._composition : Fluid = composition
         self._size = size
+
+        print("DHIWHDI")
 
     def move(self):
         self._entities.move()
@@ -22,4 +23,3 @@ class Campo():
     def size(self):
         return self._size
 
-c = Campo()

@@ -1,5 +1,5 @@
 import pygame
-
+import time
 class View():
     def __init__(self, campo):
         self._campo = campo
@@ -13,7 +13,7 @@ class View():
         while running:
 
             self._campo.move()
-
+            time.sleep(1)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False

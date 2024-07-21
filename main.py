@@ -6,15 +6,18 @@ from Model.Materials import SolidGroup
 
 from Model.Entities import Ball
 
-size = (400, 400)
-campo = Campo(FluidGroup.air, size)
+fluidGroup = FluidGroup()
+solidGroup = SolidGroup()
 
-palla = Ball((200,200), 20, SolidGroup.wood)
+size = (400, 400)
+campo = Campo(fluidGroup.air, size)
+
+palla = Ball((200,200), 20, solidGroup.wood)
 
 palla.setVelocity((2,1))
 palla.setAcceleration((-0.5, -0.2))
 
-campo.addEntity()
+campo.addEntity(palla)
 
 view = View(campo)
 view.start()

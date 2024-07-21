@@ -30,7 +30,7 @@ class Fluid():
           
 class SolidGroup():
     def __init__(self):
-        self._wood = Solid(0.3, 0.5)
+        self._wood = Solid(0.3, 0.5, 0.03)
     
     @property
     def wood(self):
@@ -41,6 +41,10 @@ class Solid():
         self._friction = friction
         self._restituitionCoeff = restituitionCoeff
         self._density = density
+        print(self._density,"DBWYUIDVWYIDV")
+
+    def __str__(self):
+        return f"{self._density}"
     
     def setFriction(self, friction):
         self._friction = friction
@@ -61,6 +65,7 @@ class Solid():
     
     @property
     def density(self):
+        print("HDIW", self._density)
         return self._density
 
 
