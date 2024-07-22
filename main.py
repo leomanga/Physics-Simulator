@@ -6,6 +6,8 @@ from Model.Materials import SolidGroup
 
 from Model.Entities import Ball
 
+import time
+
 fluidGroup = FluidGroup()
 solidGroup = SolidGroup()
 
@@ -14,10 +16,20 @@ campo = Campo(fluidGroup.air, size)
 
 palla = Ball((200,200), 20, solidGroup.wood)
 
-palla.setVelocity((2,1))
-palla.setAcceleration((-0.5, -0.2))
+palla.setVelocity((30,12))
+palla.setAcceleration((-2.3, -0.2))
 
 campo.addEntity(palla)
 
 view = View(campo)
-view.start()
+
+running = True
+
+while running:
+    campo.move()
+    view.draw(campo.entities)
+    view.update()
+
+    for event in view.getEvents():
+        if event.type == view.QUIT:
+            running = False
