@@ -1,1 +1,4 @@
 .venv
+Model/__pycache__
+View/__pycache__
+__pycache__
