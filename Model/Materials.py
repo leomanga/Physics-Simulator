@@ -41,7 +41,6 @@ class Solid():
         self._friction = friction
         self._restituitionCoeff = restituitionCoeff
         self._density = density
-        print(self._density,"DBWYUIDVWYIDV")
 
     def __str__(self):
         return f"{self._density}"

@@ -19,8 +19,11 @@ class View():
         """
         return pygame.event.get()
 
-    def _drawCircle(self, center:tuple, radius:float, color:tuple=(255,0,0)):
+    def drawCircle(self, center:tuple, radius:float, color:tuple=(255,0,0)):
         pygame.draw.circle(self._screen, color, center, radius)
+    
+    def drawPolygon(self, vectorList: list[tuple], color:tuple=(255,0,0)):
+        pygame.draw.polygon(self._screen, color, vectorList)
         
     def update(self):
         pygame.display.flip()
@@ -29,4 +32,4 @@ class View():
 
         self._screen.fill((0,0,0))
         for e in entities:
-            self._drawCircle(e.position, e.radius)
+            e.printItself(self)
