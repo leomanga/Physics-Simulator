@@ -1,0 +1,5 @@
+icecream==2.1.3
+np_utils==0.6.0
+numpy==1.26.4
+pygame==2.6.0
+
