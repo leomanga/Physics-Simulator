@@ -4,12 +4,12 @@ class View():
     #events list
     QUIT = pygame.QUIT
 
-
-    def __init__(self, campo):
+    def __init__(self, campo, screenColor:tuple=(255,255,255)):
         self._campo = campo
         pygame.init()
         self._screen = pygame.display.set_mode(self._campo.size)
-        self._screen.fill((0,0,0))
+        self._screenColor = screenColor
+        self._fillScreen(screenColor)
         pygame.display.set_caption('ARMANDO')
 
     def getEvents(self):
@@ -29,7 +29,13 @@ class View():
         pygame.display.flip()
 
     def draw(self, entities):
-
-        self._screen.fill((0,0,0))
+        self._fillScreen(self._screenColor)
         for e in entities:
             e.printItself(self)
+    
+    def setScreenColor(self, color:tuple):
+        # può fare comodo per cambiare colore dello sfondo in base al materiale
+        self._screenColor = color
+
+    def _fillScreen(self, color:tuple):
+        self._screen.fill(color)

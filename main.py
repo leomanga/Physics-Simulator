@@ -11,7 +11,7 @@ import time
 fluidGroup = FluidGroup()
 solidGroup = SolidGroup()
 
-size = (400, 400)
+size = (800, 800)
 campo = Campo(fluidGroup.air, size)
 
 palla = Ball((200,200), 20, solidGroup.wood)
@@ -22,10 +22,16 @@ palla.setAcceleration((-2.3, -0.2))
 campo.addEntity(palla)
 
 quadrato = Quadrato(29, (33,33), 45, solidGroup.wood)
-quadrato.setVelocity((30,12))
-quadrato.setAcceleration((-2.3, -0.2))
+quadrato.setVelocity((40,12))
+quadrato.setAcceleration((0.05, -0.2))
 
 campo.addEntity(quadrato)
+
+quadrato2 = Quadrato(43, (89,125), 10, solidGroup.wood)
+quadrato2.setVelocity((40,23))
+quadrato2.setAcceleration((-6, -0.2))
+
+campo.addEntity(quadrato2)
 
 view = View(campo)
 
