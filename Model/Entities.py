@@ -101,8 +101,11 @@ class Quadrato():
     
     def _initVertexes(self):
         # calculating vectors by rotation and length
-        vector2 = np.array((Utils.cos(self._rotation), Utils.sin(self._rotation)))*self._length
-        vector4 = np.array((-Utils.sin(self._rotation), Utils.cos(self._rotation)))*self._length
+        side1 = Utils.cos(self._rotation) * self._length
+        side2 = Utils.sin(self._rotation) * self._length
+        
+        vector2 = np.array((side1, side2))
+        vector4 = np.array((-side2, side1))
         vector3 = vector2+vector4
 
         vector2Traslated = Utils.traslateVector(self._mainVertex, vector2)
