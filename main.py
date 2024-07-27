@@ -14,22 +14,22 @@ solidGroup = SolidGroup()
 size = (800, 800)
 campo = Campo(fluidGroup.air, size)
 
-palla = Ball((200,200), 20, solidGroup.wood)
+palla = Ball((200,33), 20, solidGroup.wood)
 
-palla.setVelocity((30,12))
-palla.setAcceleration((-2.3, -0.2))
+palla.setVelocity((-30,0))
+palla.setAcceleration((-2.3, 0))
 
 campo.addEntity(palla)
 
-quadrato = Quadrato(29, (33,33), 45, solidGroup.wood)
-quadrato.setVelocity((40,12))
-quadrato.setAcceleration((0.05, -0.2))
+quadrato = Quadrato(29, (33,33), 0, solidGroup.wood)
+quadrato.setVelocity((23, 0))
+quadrato.setAcceleration((0.05, 0))
 
 campo.addEntity(quadrato)
 
-quadrato2 = Quadrato(43, (89,125), 10, solidGroup.wood)
-quadrato2.setVelocity((40,23))
-quadrato2.setAcceleration((-6, -0.2))
+quadrato2 = Quadrato(43, (600,33), 0, solidGroup.wood)
+quadrato2.setVelocity((-19,0))
+quadrato2.setAcceleration((-0.2, 0))
 
 campo.addEntity(quadrato2)
 
