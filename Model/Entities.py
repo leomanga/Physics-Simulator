@@ -2,18 +2,25 @@ from .Materials import Solid
 import math
 from .Utils import Utils
 import numpy as np
+import asyncio
 
 from icecream import ic
 class EntityGroup():
     def __init__(self):
         self._entities:list[Entity] = []
+        
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
 
     def addEntity(self, entity):
         self._entities.append(entity)
     
     def move(self, deltaTime:float):
-        for entity in self._entities:
-            entity.move(deltaTime)
+        tasks = [entity.move(deltaTime) for entity in self._entities]
+        self._loop.run_until_complete(asyncio.gather(*tasks))
+                
+        """for entity in self._entities:
+            entity.move(deltaTime)"""
         checker = self._checkCollisions()
         return checker
     
@@ -26,10 +33,10 @@ class EntityGroup():
                 collide = self._areColliding(self._entities[i], self._entities[j])
                 if collide:
                     #collision(self._entities[i], self._entities[j], pointOfCOllision)
-                    self._entities[i].setVelocity((0,0))
-                    self._entities[i].setAcceleration((0,0))
-                    self._entities[j].setVelocity((0,0))
-                    self._entities[j].setAcceleration((0,0))
+                    self._entities[i].setVelocity(self._entities[i].velocity * -1)
+                    self._entities[i].setAcceleration(self._entities[i].acceleration * -1)
+                    self._entities[j].setVelocity(self._entities[i].velocity * -1)
+                    self._entities[j].setAcceleration(self._entities[i].acceleration * -1)
                     collided = True
         
         return collided
@@ -58,7 +65,7 @@ class EntityGroup():
         return self._entities
 
 class Entity():
-    def move(self, deltaTime:float):
+    async def move(self, deltaTime:float):
         raise NotImplementedError("This method should be overridden by subclass")
 
     def setVelocity(self, velocity:tuple):
@@ -69,18 +76,26 @@ class Entity():
 
     def printItself(self, view):
         raise NotImplementedError("This method should be overridden by subclass")
+    
     @property
     def vertexes(self):
         raise NotImplementedError("This method should be overridden by subclass")
     
+    @property
+    def velocity(self):
+        raise NotImplementedError("This method should be overridden by subclass")
 
+    @property
+    def acceleration(self):
+        raise NotImplementedError("This method should be overridden by subclass")
+    
 class Ball(Entity):
     def __init__(self, position:tuple, raggio:int, materiale:Solid):
         # position identify the center of the ball
         self._position = np.array(position)
         self._velocity = np.array((0,0))
         self._acceleration = np.array((0,0))
-        self._numberOfSides = 50
+        self._numberOfSides = 16
 
         self._raggio : int = raggio
         self._vertexes : list[np.ndarray] = []
@@ -90,7 +105,7 @@ class Ball(Entity):
 
         self._weight : float = self._calculateWeight()
 
-    def move(self, deltaTime:float):
+    async def move(self, deltaTime:float):
             self._velocity = self._velocity + (self._acceleration * deltaTime)
             deltaPosition = self._velocity * deltaTime
             self._position = self._position + (deltaPosition)
@@ -109,6 +124,8 @@ class Ball(Entity):
 
     def printItself(self, view):
         view.drawCircle(self._position, self._raggio)   
+        """listVertexes=[tuple(vertex) for vertex in self._vertexes]
+        view.drawPolygon(listVertexes)  """
 
     def _calculateWeight(self):
         return math.pi * self._raggio**2 * self._materiale.density
@@ -134,6 +151,13 @@ class Ball(Entity):
     def radius(self):
         return self._raggio
     
+    @property
+    def velocity(self):
+        return self._velocity
+    
+    @property
+    def acceleration(self):
+        return self._acceleration
 class Quadrato():
     def __init__(self, length, mainVertex: tuple, rotation, material: Solid ):
         self._mainVertex = np.array(mainVertex)
@@ -175,7 +199,7 @@ class Quadrato():
     def setAcceleration(self, acceleration:tuple):
         self._acceleration = np.array(acceleration)
 
-    def move(self, deltaTime:float):
+    async def move(self, deltaTime:float):
         self._velocity = self._velocity + (self._acceleration * deltaTime)
         for i in range(len(self._vertexes)):
             self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime           
@@ -193,3 +217,11 @@ class Quadrato():
     @property
     def vertexes(self) -> list[np.ndarray]:
         return self._vertexes
+    
+    @property    
+    def velocity(self):
+        return self._velocity
+    
+    @property
+    def acceleration(self):
+        return self._acceleration

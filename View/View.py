@@ -1,4 +1,5 @@
 import pygame
+from datetime import datetime
 
 class View():
     #events list
@@ -11,6 +12,10 @@ class View():
         self._screenColor = screenColor
         self._fillScreen(screenColor)
         pygame.display.set_caption('ARMANDO')
+        pygame.font.init()
+        self._font = pygame.font.SysFont('Comic Sans MS', 30)
+        self._lastTime = datetime.now()
+        
 
     def getEvents(self):
         """
@@ -32,6 +37,15 @@ class View():
         self._fillScreen(self._screenColor)
         for e in entities:
             e.printItself(self)
+        self._printFps()       
+        
+    def _printFps(self):
+        newTime = datetime.now()
+        deltaTime = newTime - self._lastTime
+        self._lastTime = newTime
+        fps = 1 // deltaTime.total_seconds()
+        textSurface = self._font.render(f"fps:{fps}", False, (0, 0, 0))
+        self._screen.blit(textSurface, (0,0))
     
     def setScreenColor(self, color:tuple):
         # può fare comodo per cambiare colore dello sfondo in base al materiale

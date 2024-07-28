@@ -42,8 +42,8 @@ class Utils():
         # check if the projection are perpendicular to the x axes
         componentPosition = 1 if (minVector1[0]==0 and maxVector1[0] == 0) else 0
                 
-        overlapType1 = minVector1[componentPosition] < maxVector2[componentPosition]
-        overlapType2 = maxVector1[componentPosition] > minVector2[componentPosition]
+        overlapType1 = minVector1[componentPosition] <= maxVector2[componentPosition]
+        overlapType2 = maxVector1[componentPosition] >= minVector2[componentPosition]
         return True if overlapType1 and overlapType2 else False
         
         
