@@ -7,4 +7,5 @@
         - con aria
         - con solidi
         - rotolamento
-    
+    - gestione grandezza finestra, in base alla risoluzione dello schermo
+    - far vedere i vettori velocità e accelerazione
