@@ -17,31 +17,30 @@ class EntityGroup():
     
     def move(self, deltaTime:float):
         tasks = [entity.move(deltaTime) for entity in self._entities]
-        self._loop.run_until_complete(asyncio.gather(*tasks))
-                
-        """for entity in self._entities:
-            entity.move(deltaTime)"""
-        checker = self._checkCollisions()
-        return checker
+        Utils.runAsyncTasks(self._loop, tasks)
+  
+        self._manageCollisions()
     
-    def _checkCollisions(self):
-        numberOfEntities=len(self._entities)
-        collided = False
+    def _manageCollisions(self):
+        numberOfEntities = len(self._entities)
         #migliorini
+        tasks = []
         for i in range(numberOfEntities):
             for j in range(i+1, numberOfEntities):
-                collide = self._areColliding(self._entities[i], self._entities[j])
-                if collide:
-                    #collision(self._entities[i], self._entities[j], pointOfCOllision)
-                    self._entities[i].setVelocity(self._entities[i].velocity * -1)
-                    self._entities[i].setAcceleration(self._entities[i].acceleration * -1)
-                    self._entities[j].setVelocity(self._entities[i].velocity * -1)
-                    self._entities[j].setAcceleration(self._entities[i].acceleration * -1)
-                    collided = True
-        
-        return collided
-                
-    def _areColliding(self, ent1, ent2): #usiamo Separate Axis Theorem
+                tasks.append(self._manageCollisionFrom(self._entities[i], self._entities[j]))
+
+        Utils.runAsyncTasks(self._loop, tasks)
+
+    async def _manageCollisionFrom(self, entity1:"Entity", entity2:"Entity"):
+        collide = self._areColliding(entity1, entity2)
+        if collide:
+            #collision(self._entities[i], self._entities[j], pointOfCOllision)
+            entity1.setVelocity(entity1.velocity * -1)
+            entity1.setAcceleration(entity1.acceleration * -1)
+            entity2.setVelocity(entity2.velocity * -1)
+            entity2.setAcceleration(entity2.acceleration * -1)
+
+    def _areColliding(self, ent1:"Entity", ent2:"Entity"): #usiamo Separate Axis Theorem
         length1 = len(ent1.vertexes) #gestire cerchio
         length2 = len(ent2.vertexes)
         for i in range(length1):
@@ -61,10 +60,11 @@ class EntityGroup():
         return True
     
     @property
-    def entities(self):
+    def entities(self) -> list["Entity"]:
         return self._entities
 
 class Entity():
+    id = 0
     async def move(self, deltaTime:float):
         raise NotImplementedError("This method should be overridden by subclass")
 
@@ -91,6 +91,9 @@ class Entity():
     
 class Ball(Entity):
     def __init__(self, position:tuple, raggio:int, materiale:Solid):
+        self._id = Entity.id
+        Entity.id += 1
+    
         # position identify the center of the ball
         self._position = np.array(position)
         self._velocity = np.array((0,0))
@@ -104,6 +107,8 @@ class Ball(Entity):
         self._materiale : Solid = materiale
 
         self._weight : float = self._calculateWeight()
+
+
 
     async def move(self, deltaTime:float):
             self._velocity = self._velocity + (self._acceleration * deltaTime)
@@ -158,8 +163,15 @@ class Ball(Entity):
     @property
     def acceleration(self):
         return self._acceleration
+
+    @property
+    def id(self):
+        return self._id
 class Quadrato():
     def __init__(self, length, mainVertex: tuple, rotation, material: Solid ):
+        self._id = Entity.id
+        Entity.id += 1 
+    
         self._mainVertex = np.array(mainVertex)
         self._velocity = np.array((0,0))
         self._acceleration = np.array((0,0))
@@ -225,3 +237,7 @@ class Quadrato():
     @property
     def acceleration(self):
         return self._acceleration
+    
+    @property
+    def id(self):
+        return self._id

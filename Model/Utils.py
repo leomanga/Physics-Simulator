@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from icecream import ic
+import asyncio
+
 class Utils(): 
     def traslateVector(v1:np.ndarray, v2:np.ndarray) -> np.ndarray:
         return v1 + v2
@@ -45,5 +47,7 @@ class Utils():
         overlapType1 = minVector1[componentPosition] <= maxVector2[componentPosition]
         overlapType2 = maxVector1[componentPosition] >= minVector2[componentPosition]
         return True if overlapType1 and overlapType2 else False
-        
+    
+    def runAsyncTasks(loop:asyncio.AbstractEventLoop, tasks: list):
+        loop.run_until_complete(asyncio.gather(*tasks))
         
