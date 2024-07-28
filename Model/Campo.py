@@ -28,9 +28,6 @@ class Campo():
     def addEntity(self, entity):
         self._entities.addEntity(entity)
 
-    def _checkCollision(self):
-        pass
-
     @property
     def entities(self) -> list:
         return self._entities.entities

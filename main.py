@@ -14,24 +14,29 @@ solidGroup = SolidGroup()
 size = (800, 800)
 campo = Campo(fluidGroup.air, size)
 
-palla = Ball((200,200), 20, solidGroup.wood)
+palla = Ball((400,33), 50, solidGroup.wood)
 
-palla.setVelocity((30,12))
-palla.setAcceleration((-2.3, -0.2))
+palla.setVelocity((-30,0))
+palla.setAcceleration((-2.3, 0))
 
 campo.addEntity(palla)
 
-quadrato = Quadrato(29, (33,33), 45, solidGroup.wood)
-quadrato.setVelocity((40,12))
-quadrato.setAcceleration((0.05, -0.2))
+quadrato = Quadrato(29, (33,33), 0, solidGroup.wood)
+quadrato.setVelocity((23, 23))
+quadrato.setAcceleration((0.05, 0))
 
 campo.addEntity(quadrato)
 
-quadrato2 = Quadrato(43, (89,125), 10, solidGroup.wood)
-quadrato2.setVelocity((40,23))
-quadrato2.setAcceleration((-6, -0.2))
+quadrato2 = Quadrato(43, (650,650), 0, solidGroup.wood)
+quadrato2.setVelocity((-20,-20))
+quadrato2.setAcceleration((-0.05, 0))
 
 campo.addEntity(quadrato2)
+
+for i in range (10):
+    e = Ball((80 * i, 60 * i), 32, solidGroup.wood)
+    e.setVelocity((10,10))
+    campo.addEntity(e)
 
 view = View(campo)
 
@@ -41,7 +46,6 @@ while running:
     campo.move()
     view.draw(campo.entities)
     view.update()
-
     for event in view.getEvents():
         if event.type == view.QUIT:
             running = False
