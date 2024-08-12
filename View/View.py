@@ -29,7 +29,14 @@ class View():
     
     def drawPolygon(self, vectorList: list[tuple], color:tuple=(255,0,0)):
         pygame.draw.polygon(self._screen, color, vectorList)
-        
+    
+    def drawLine(self, point1:tuple, point2:tuple, color:tuple=(0,0,255)):
+        #print(point2)
+        pygame.draw.line(self._screen, color, point1, point2, 3)
+
+    def drawPoint(self, contactPoint):
+        self.drawCircle(contactPoint, 3, (255,170,170))
+
     def update(self):
         pygame.display.flip()
 

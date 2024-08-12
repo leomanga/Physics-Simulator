@@ -4,6 +4,7 @@ from .Utils import Utils
 import numpy as np
 import asyncio
 
+
 from icecream import ic
 class EntityGroup():
     def __init__(self):
@@ -22,42 +23,15 @@ class EntityGroup():
         self._manageCollisions()
     
     def _manageCollisions(self):
+        from .Collisions import CollisionManager
         numberOfEntities = len(self._entities)
         #migliorini
         tasks = []
         for i in range(numberOfEntities):
             for j in range(i+1, numberOfEntities):
-                tasks.append(self._manageCollisionFrom(self._entities[i], self._entities[j]))
+                tasks.append(CollisionManager.manageCollisionFrom(self._entities[i], self._entities[j]))
 
         Utils.runAsyncTasks(self._loop, tasks)
-
-    async def _manageCollisionFrom(self, entity1:"Entity", entity2:"Entity"):
-        collide = self._areColliding(entity1, entity2)
-        if collide:
-            #collision(self._entities[i], self._entities[j], pointOfCOllision)
-            entity1.setVelocity(entity1.velocity * -1)
-            entity1.setAcceleration(entity1.acceleration * -1)
-            entity2.setVelocity(entity2.velocity * -1)
-            entity2.setAcceleration(entity2.acceleration * -1)
-
-    def _areColliding(self, ent1:"Entity", ent2:"Entity"): #usiamo Separate Axis Theorem
-        length1 = len(ent1.vertexes) #gestire cerchio
-        length2 = len(ent2.vertexes)
-        for i in range(length1):
-            direction = ent1.vertexes[i]-ent1.vertexes[(i+1)%length1]
-            projection1 = Utils.ProjectEntityVertexes(direction, ent1.vertexes)
-            projection2 = Utils.ProjectEntityVertexes(direction, ent2.vertexes)
-            if not Utils.checkOverlap(projection1, projection2):
-                return False
-            
-        for i in range(length2):
-            direction = ent2.vertexes[i]-ent2.vertexes[(i+1)%length2]
-            projection1 = Utils.ProjectEntityVertexes(direction, ent1.vertexes)
-            projection2 = Utils.ProjectEntityVertexes(direction, ent2.vertexes)
-            if not Utils.checkOverlap(projection1, projection2):
-                return False
-            
-        return True
     
     @property
     def entities(self) -> list["Entity"]:
@@ -88,6 +62,133 @@ class Entity():
     @property
     def acceleration(self):
         raise NotImplementedError("This method should be overridden by subclass")
+    
+class Polygon(Entity):
+    def _calculateArea(self):
+       raise NotImplementedError("This method should be overridden by subclass")
+    
+    def _calculateCentroid(self):
+        pass
+
+    def _calculateNormals(self, normalLength:int = 15):
+        length = len(self._vertexes)
+        for i in range(length):
+            direction : np.array = self.vertexes[i] - self.vertexes[(i + 1) % length]
+            directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -normalLength
+            normalX = directionVersor[1]
+            normalY = - directionVersor[0]
+
+            self._normals.append(np.array((normalX, normalY)))
+
+    def printItself(self, view):
+        listVertexes=[tuple(vertex) for vertex in self._vertexes]
+        view.drawPolygon(listVertexes)   
+        length = len(self._normals)
+        for i in range(length):
+            startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
+            view.drawLine(tuple(startingPoint), tuple(startingPoint + self._normals[i]))
+        
+        if self._contactPoint is not None:
+            view.drawPoint(tuple(self._contactPoint))
+
+    def _calculateMidPoint(self, vec1:np.ndarray, vec2:np.ndarray) -> np.ndarray:
+        return vec1 + (vec2 - vec1) / 2 
+        
+class RegularPolygon(Polygon):
+    def __init__(self, length, centerOfMass: tuple, rotation, numberOfSides, material: Solid):
+        self._id = Entity.id
+        Entity.id += 1 
+    
+        self._centerOfMass = np.array(centerOfMass)
+        self._velocity = np.array((0,0))
+        self._acceleration = np.array((0,0))
+        
+        self._length = length
+        self._rotation = rotation
+        
+        self._numberOfSides = numberOfSides
+        self._vertexes = []
+        self._apothem = self._calculateApothem()
+        self._area = self._calculateArea()
+        self._initVertexes()
+        
+        self._normals = []
+        self._calculateNormals()
+        
+        self._material = material
+        self._weight : float = self._calculateWeight()
+
+        self._counter=0
+
+        self._contactPoint = None
+    
+    def _initVertexes(self):
+        angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
+        x=self._apothem*np.cos(angles)
+        y=self._apothem*np.sin(angles)
+        xOffset=x+self._centerOfMass[0]
+        yOffset=y+self._centerOfMass[1]
+        for i in range(self._numberOfSides):
+            self._vertexes.append(np.array((xOffset[i], yOffset[i])))    
+    
+
+    def setVelocity(self, velocity:tuple):
+        self._velocity = np.array(velocity)
+    
+    def setAcceleration(self, acceleration:tuple):
+        self._acceleration = np.array(acceleration)
+
+    async def move(self, deltaTime:float):
+        self._velocity = self._velocity + (self._acceleration * deltaTime)
+        for i in range(len(self._vertexes)):
+            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime           
+
+        """       
+        def printItself(self, view):
+            listVertexes=[tuple(vertex) for vertex in self._vertexes]
+            view.drawPolygon(listVertexes)   
+            for i in range(len(self._normals)):
+                view.drawVector()"""
+
+    def _calculateWeight(self):
+        """
+        TODO
+        """
+        pass 
+    
+    def _calculateArea(self):
+        perimeter = self._length*self._numberOfSides
+        return 0.5*self._apothem*perimeter
+
+    def _calculateApothem(self):
+        return (self._length/2)/Utils.sin(180/self._numberOfSides)
+    
+    def setContactPoint(self, contactPoint):
+        self._contactPoint = contactPoint    
+    
+    @property
+    def vertexes(self) -> list[np.ndarray]:
+        return self._vertexes
+    
+    @property
+    def normals(self) -> list[np.ndarray]:
+        return self._normals
+    
+    @property    
+    def velocity(self):
+        return self._velocity
+    
+    @property
+    def acceleration(self):
+        return self._acceleration
+    
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def numberOfSides(self):
+        return self._numberOfSides
     
 class Ball(Entity):
     def __init__(self, position:tuple, raggio:int, materiale:Solid):
@@ -166,78 +267,4 @@ class Ball(Entity):
 
     @property
     def id(self):
-        return self._id
-class Quadrato():
-    def __init__(self, length, mainVertex: tuple, rotation, material: Solid ):
-        self._id = Entity.id
-        Entity.id += 1 
-    
-        self._mainVertex = np.array(mainVertex)
-        self._velocity = np.array((0,0))
-        self._acceleration = np.array((0,0))
-        
-        self._length = length
-        self._rotation = rotation
-        
-        self._vertexes = [self._mainVertex]
-        self._initVertexes()
-        
-        self._material = material
-        self._weight : float = self._calculateWeight()
-
-        self._counter=0
-    
-    def _initVertexes(self):
-        # calculating vectors by rotation and length
-        side1 = Utils.cos(self._rotation) * self._length
-        side2 = Utils.sin(self._rotation) * self._length
-        
-        vector2 = np.array((side1, side2))
-        vector4 = np.array((-side2, side1))
-        vector3 = vector2+vector4
-
-        vector2Traslated = Utils.traslateVector(self._mainVertex, vector2)
-        vector3Traslated = Utils.traslateVector(self._mainVertex, vector3)
-        vector4Traslated = Utils.traslateVector(self._mainVertex, vector4)
-        
-        # the append order is important for printing the Quadrato on the view
-        self._vertexes.append(vector2Traslated)
-        self._vertexes.append(vector3Traslated)
-        self._vertexes.append(vector4Traslated)
-
-    def setVelocity(self, velocity:tuple):
-        self._velocity = np.array(velocity)
-    
-    def setAcceleration(self, acceleration:tuple):
-        self._acceleration = np.array(acceleration)
-
-    async def move(self, deltaTime:float):
-        self._velocity = self._velocity + (self._acceleration * deltaTime)
-        for i in range(len(self._vertexes)):
-            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime           
-            
-    def printItself(self, view):
-        listVertexes=[tuple(vertex) for vertex in self._vertexes]
-        view.drawPolygon(listVertexes)   
-
-    def _calculateWeight(self):
-        """
-        TODO
-        """
-        pass 
-    
-    @property
-    def vertexes(self) -> list[np.ndarray]:
-        return self._vertexes
-    
-    @property    
-    def velocity(self):
-        return self._velocity
-    
-    @property
-    def acceleration(self):
-        return self._acceleration
-    
-    @property
-    def id(self):
-        return self._id
+        return self._id  
