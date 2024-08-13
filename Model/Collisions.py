@@ -5,7 +5,6 @@ from .Utils import Utils
 
 from icecream import ic
 
-
 class CollisionManager():
     async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
@@ -80,13 +79,13 @@ class CollisionManager():
         for i in range (pol.numberOfSides):
             direction =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
 
-            dirToCircle = ball.position - pol.vertexes[i]
-
-          
+            dirToCircle = ball.position - pol.vertexes[i]          
 
             value = np.dot(dirToCircle, Utils.normalize(direction))
+
             if value > 0 and value < pol.sidesLength[i]:
-                contactInfo = CollisionManager._getContactInfo( pol, ball, i)
+                contactInfo = CollisionManager._getContactInfo(pol, ball, i)
+
                 if contactInfo is None:
                     continue
                     
