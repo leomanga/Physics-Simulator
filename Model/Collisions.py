@@ -75,27 +75,37 @@ class CollisionManager():
         CollisionManager._manageCircleVsPolygonVertices(pol, ball)
         
     def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball"):
+        ic(pol.numberOfSides)
         for i in range (pol.numberOfSides):
             direction =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
+
             dirToCircle = ball.position - pol.vertexes[i]
+
+            ic(i, direction, (Utils.normalize(direction)) , dirToCircle, ball.position, pol.vertexes[i])
+          
+
             value = np.dot(dirToCircle, Utils.normalize(direction))
             ic(value)
+            ic(pol.sidesLength[i])
             if value > 0 and value < pol.sidesLength[i]:
-                ic(i)
                 contactInfo = CollisionManager._getContactInfo( pol, ball, i)
+                ic(contactInfo)
                 if contactInfo is None:
-                    return
+                    continue
+                    
                 ball.setVelocity((0,0))
                 pol.setVelocity((0,0))
                 ball.setAcceleration((0,0))
                 pol.setAcceleration((0,0))
-                return
+                return True
+            
+        return False
                 
     def _getContactInfo( pol : "Polygon", ball : "Ball", index):
         projectionToEdgeNormal = np.dot(ball.position - pol.vertexes[index], pol.normals[index])
-        penetrationDepth = projectionToEdgeNormal + ball.radius
+        penetrationDepth = projectionToEdgeNormal - ball.radius
         ic(penetrationDepth)
-        if penetrationDepth < 0:
+        if penetrationDepth > 0:
             return None
         
         penetrationPoint = ball.position + np.dot(pol.normals[index], ball.radius * -1)

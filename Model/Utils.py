@@ -52,4 +52,5 @@ class Utils():
         loop.run_until_complete(asyncio.gather(*tasks))
         
     def normalize(vector):
-       return vector / math.sqrt(vector[0]**2 + vector[1]**2)        
+       return vector / np.linalg.norm(vector)
+       #return vector / math.sqrt(vector[0]**2 + vector[1]**2)        

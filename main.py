@@ -27,11 +27,11 @@ quadrato.setAcceleration((10, 0))
 
 campo.addEntity(quadrato)
 
-quadrato2 = RegularPolygon(40, (650,80), 45, 4, solidGroup.wood)
+"""quadrato2 = RegularPolygon(40, (650,80), 45, 4, solidGroup.wood)
 quadrato2.setVelocity((-20,0))
 quadrato2.setAcceleration((-0.05, 0))
 
-campo.addEntity(quadrato2)
+campo.addEntity(quadrato2)"""
 
 """for i in range (10):
     e = Ball((80 * i, 60 * i), 32, solidGroup.wood)

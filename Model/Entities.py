@@ -214,22 +214,15 @@ class Ball(Entity):
         self._numberOfSides = 16
 
         self._raggio : int = raggio
-        self._vertexes : list[np.ndarray] = []
-        self._initVertexes()
         
         self._materiale : Solid = materiale
 
         self._weight : float = self._calculateWeight()
 
-
-
     async def move(self, deltaTime:float):
             self._velocity = self._velocity + (self._acceleration * deltaTime)
             deltaPosition = self._velocity * deltaTime
-            self._position = self._position + (deltaPosition)
-            for i in range(self._numberOfSides):
-                self._vertexes[i] = self._vertexes[i] + deltaPosition
-            
+            self._position = self._position + deltaPosition      
 
     def setPosition(self, position:tuple):
         self._position = np.array(position)
