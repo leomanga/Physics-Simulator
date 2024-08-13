@@ -1,17 +1,24 @@
 import numpy as np
 
-from .Entities import Entity, Polygon
+from .Entities import Entity, Polygon, Ball
+from .Utils import Utils
+
+from icecream import ic
 
 class CollisionManager():
     async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
-            CollisionManager._manageCollisionsFromPolygons(entity1, entity2)
+            CollisionManager._manageCollisionFromPolygons(entity1, entity2)
 
-        else:
-            pass
+        elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
+            CollisionManager._manageCollisionBallPolygon(entity1, entity2)
+         
+        elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
+            CollisionManager._manageCollisionBallPolygon(entity2, entity1)
+           
 
     
-    def _manageCollisionsFromPolygons(pol1:"Entity", pol2:"Entity"): #usiamo Separate Axis Theorem
+    def _manageCollisionFromPolygons(pol1:"Entity", pol2:"Entity"): #usiamo Separate Axis Theorem
         contactPoint1 = CollisionManager._getContactPoint(pol1, pol2)
         if contactPoint1 == False:
             return
@@ -62,6 +69,44 @@ class CollisionManager():
 
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
         return np.dot((pol2Vertex - pol1Vertex) * -1, pol1Normal)
+    
+    def _manageCollisionBallPolygon(pol, ball):
+        CollisionManager._manageCircleVsPolygonEdges(pol, ball)
+        CollisionManager._manageCircleVsPolygonVertices(pol, ball)
+        
+    def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball"):
+        for i in range (pol.numberOfSides):
+            direction =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
+            dirToCircle = ball.position - pol.vertexes[i]
+            value = np.dot(dirToCircle, Utils.normalize(direction))
+            ic(value)
+            if value > 0 and value < pol.sidesLength[i]:
+                ic(i)
+                contactInfo = CollisionManager._getContactInfo( pol, ball, i)
+                if contactInfo is None:
+                    return
+                ball.setVelocity((0,0))
+                pol.setVelocity((0,0))
+                ball.setAcceleration((0,0))
+                pol.setAcceleration((0,0))
+                return
+                
+    def _getContactInfo( pol : "Polygon", ball : "Ball", index):
+        projectionToEdgeNormal = np.dot(ball.position - pol.vertexes[index], pol.normals[index])
+        penetrationDepth = projectionToEdgeNormal + ball.radius
+        ic(penetrationDepth)
+        if penetrationDepth < 0:
+            return None
+        
+        penetrationPoint = ball.position + np.dot(pol.normals[index], ball.radius * -1)
+        
+        return penetrationPoint, pol.normals[index]
+        
+    
+    def _manageCircleVsPolygonVertices(ball, pol):
+        pass
+        
+        
 
         
 

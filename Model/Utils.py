@@ -51,3 +51,5 @@ class Utils():
     def runAsyncTasks(loop:asyncio.AbstractEventLoop, tasks: list):
         loop.run_until_complete(asyncio.gather(*tasks))
         
+    def normalize(vector):
+       return vector / math.sqrt(vector[0]**2 + vector[1]**2)        

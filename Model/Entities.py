@@ -70,11 +70,11 @@ class Polygon(Entity):
     def _calculateCentroid(self):
         pass
 
-    def _calculateNormals(self, normalLength:int = 15):
+    def _calculateNormals(self):
         length = len(self._vertexes)
         for i in range(length):
             direction : np.array = self.vertexes[i] - self.vertexes[(i + 1) % length]
-            directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -normalLength
+            directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -1
             normalX = directionVersor[1]
             normalY = - directionVersor[0]
 
@@ -86,13 +86,47 @@ class Polygon(Entity):
         length = len(self._normals)
         for i in range(length):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
-            view.drawLine(tuple(startingPoint), tuple(startingPoint + self._normals[i]))
+            view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
+            view.drawText(i, self.vertexes[i])
         
         if self._contactPoint is not None:
             view.drawPoint(tuple(self._contactPoint))
 
     def _calculateMidPoint(self, vec1:np.ndarray, vec2:np.ndarray) -> np.ndarray:
         return vec1 + (vec2 - vec1) / 2 
+    
+    def _initSidesLength(self):
+        for i in range(self.numberOfSides):
+             direction = self.vertexes[(i+1) % self.numberOfSides] - self.vertexes[i]
+             self._sidesLength.append(np.linalg.norm(direction))
+        
+    @property
+    def vertexes(self) -> list[np.ndarray]:
+        return self._vertexes
+    
+    @property
+    def normals(self) -> list[np.ndarray]:
+        return self._normals
+    
+    @property    
+    def velocity(self):
+        return self._velocity
+    
+    @property
+    def acceleration(self):
+        return self._acceleration
+    
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def numberOfSides(self):
+        return self._numberOfSides
+    
+    @property
+    def sidesLength(self):
+        return self._sidesLength
         
 class RegularPolygon(Polygon):
     def __init__(self, length, centerOfMass: tuple, rotation, numberOfSides, material: Solid):
@@ -121,6 +155,8 @@ class RegularPolygon(Polygon):
         self._counter=0
 
         self._contactPoint = None
+        self._sidesLength = []
+        self._initSidesLength()
     
     def _initVertexes(self):
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
@@ -165,30 +201,6 @@ class RegularPolygon(Polygon):
     
     def setContactPoint(self, contactPoint):
         self._contactPoint = contactPoint    
-    
-    @property
-    def vertexes(self) -> list[np.ndarray]:
-        return self._vertexes
-    
-    @property
-    def normals(self) -> list[np.ndarray]:
-        return self._normals
-    
-    @property    
-    def velocity(self):
-        return self._velocity
-    
-    @property
-    def acceleration(self):
-        return self._acceleration
-    
-    @property
-    def id(self):
-        return self._id
-    
-    @property
-    def numberOfSides(self):
-        return self._numberOfSides
     
 class Ball(Entity):
     def __init__(self, position:tuple, raggio:int, materiale:Solid):

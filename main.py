@@ -21,7 +21,7 @@ palla.setAcceleration((-2.3, 0))
 
 campo.addEntity(palla)
 
-quadrato = RegularPolygon(29, (79,90), 45, 4, solidGroup.wood)
+quadrato = RegularPolygon(123, (79,400), 45, 4, solidGroup.wood)
 quadrato.setVelocity((23, 0))
 quadrato.setAcceleration((10, 0))
 

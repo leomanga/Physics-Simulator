@@ -37,6 +37,10 @@ class View():
     def drawPoint(self, contactPoint):
         self.drawCircle(contactPoint, 3, (255,170,170))
 
+    def drawText(self, text, coord):
+        textSurface = self._font.render(f"{text}", False, (0, 0, 0))
+        self._screen.blit(textSurface, coord)
+    
     def update(self):
         pygame.display.flip()
 
