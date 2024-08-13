@@ -16,14 +16,14 @@ campo = Campo(fluidGroup.air, size)
 
 palla = Ball((400,400), 50, solidGroup.wood)
 
-palla.setVelocity((-30,0))
-palla.setAcceleration((-2.3, 0))
+palla.setVelocity((+30,0))
+palla.setAcceleration((+2.3, 0))
 
 campo.addEntity(palla)
 
-quadrato = RegularPolygon(123, (79,400), 45, 4, solidGroup.wood)
-quadrato.setVelocity((23, 0))
-quadrato.setAcceleration((10, 0))
+quadrato = RegularPolygon(123, (650,400), 45, 4, solidGroup.wood)
+quadrato.setVelocity((-23, 0))
+quadrato.setAcceleration((0, 0))
 
 campo.addEntity(quadrato)
 
