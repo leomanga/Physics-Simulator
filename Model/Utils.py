@@ -29,7 +29,6 @@ class Utils():
                 maxVector = actualProjection
         return minVector, maxVector
                 
-    
     def project(direction:np.ndarray, vertex:np.ndarray)->np.ndarray:
         return (np.dot(direction,vertex)/np.dot(direction, direction))*direction
     
@@ -53,4 +52,7 @@ class Utils():
         
     def normalize(vector):
        return vector / np.linalg.norm(vector)
-       #return vector / math.sqrt(vector[0]**2 + vector[1]**2)        
+       #return vector / math.sqrt(vector[0]**2 + vector[1]**2)  
+
+    def calculateDistance(vector1:np.ndarray, vector2:np.ndarray):
+        return np.linalg.norm(vector1 - vector2)      

@@ -55,8 +55,6 @@ class CollisionManager():
 
         return minDepth, minSupportPoint
         
-
-
     def _findSupportPoint(pol1, pol2, vertexIndex) -> tuple:
         maxDepth = CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[0])
         maxSupportPoint = pol2.vertexes[0]
@@ -70,12 +68,25 @@ class CollisionManager():
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
         return np.dot((pol2Vertex - pol1Vertex) * -1, pol1Normal)
     
-    def _manageCollisionBallPolygon(pol, ball):
-        CollisionManager._manageCircleVsPolygonEdges(pol, ball)
-        CollisionManager._manageCircleVsPolygonVertices(pol, ball)
+    def _manageCollisionBallPolygon(pol:"Polygon", ball:"Ball"):
+        contactInfo:ContactInfo = CollisionManager._manageCircleVsPolygonEdges(pol, ball)
+
+        if contactInfo is None:
+            contactInfo = CollisionManager._manageCircleVsPolygonVertices(pol, ball)
         
-    def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball"):
-        ic(pol.numberOfSides)
+        if contactInfo is None:
+            return
+        
+        pol.setVelocity((0,0))
+        ball.setVelocity((0,0))
+
+        pol.setAcceleration((0,0))
+        ball.setAcceleration((0,0))
+
+        pol.setContactPoint(contactInfo.penetrationPoint)
+    
+    def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball") -> "ContactInfo":
+        contactInfo = None
         for i in range (pol.numberOfSides):
             direction =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
 
@@ -84,34 +95,55 @@ class CollisionManager():
             value = np.dot(dirToCircle, Utils.normalize(direction))
 
             if value > 0 and value < pol.sidesLength[i]:
-                contactInfo = CollisionManager._getContactInfo(pol, ball, i)
+                info = CollisionManager._getContactInfo(pol, ball, i)
 
-                if contactInfo is None:
-                    continue
-                    
-                ball.setVelocity((0,0))
-                pol.setVelocity((0,0))
-                ball.setAcceleration((0,0))
-                pol.setAcceleration((0,0))
-            
+                if info is not None:
+                    contactInfo = info
+
+        return contactInfo
                 
-    def _getContactInfo( pol : "Polygon", ball : "Ball", index):
+    def _getContactInfo(pol : "Polygon", ball : "Ball", index) -> "ContactInfo":
         projectionToEdgeNormal = np.dot(ball.position - pol.vertexes[index], pol.normals[index])
         if projectionToEdgeNormal < 0:
             projectionToEdgeNormal = -projectionToEdgeNormal
+        
         penetrationDepth = projectionToEdgeNormal - ball.radius
         if penetrationDepth > 0:
             return None
         
         penetrationPoint = ball.position + np.dot(pol.normals[index], ball.radius * -1)
         
-        return penetrationPoint, pol.normals[index]
+        return ContactInfo(penetrationPoint, pol.normals[index], penetrationDepth)
         
+    def _manageCircleVsPolygonVertices(pol : "Polygon", ball : "Ball") -> "ContactInfo":
+        for vertex in pol.vertexes:
+            distance = Utils.calculateDistance(vertex, ball.position)
+            if distance <= ball.radius:
+                penetrationPoint = vertex
+                penetrationNormal = Utils.normalize(vertex-ball.position)
+                penetrationDepth = ball.radius - np.linalg.norm(vertex-ball.position)
+
+                return ContactInfo(penetrationPoint, penetrationNormal, penetrationDepth)
+
+            
+class ContactInfo():
+    def __init__(self, penetrationPoint, penetrationNormal, penetrationDepth):
+        self._penetrationPoint = penetrationPoint
+        self._penetrationNormal = penetrationNormal
+        self._penetrationDepth = penetrationDepth
+
+    @property
+    def penetrationPoint(self):
+        return self._penetrationPoint
     
-    def _manageCircleVsPolygonVertices(ball, pol):
-        pass
-        
-        
+    @property
+    def penetrationNormal(self):
+        return self._penetrationNormal
+    
+    @property
+    def penetrationDepth(self):
+        return self._penetrationDepth
+    
 
         
 

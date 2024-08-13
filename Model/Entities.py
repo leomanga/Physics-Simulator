@@ -28,6 +28,10 @@ class EntityGroup():
         #migliorini
         tasks = []
         for i in range(numberOfEntities):
+            
+            if isinstance(self._entities[i], Polygon):
+                self._entities[i].setContactPoint(None)
+
             for j in range(i+1, numberOfEntities):
                 tasks.append(CollisionManager.manageCollisionFrom(self._entities[i], self._entities[j]))
 
@@ -64,6 +68,23 @@ class Entity():
         raise NotImplementedError("This method should be overridden by subclass")
     
 class Polygon(Entity):
+
+    def printItself(self, view):
+        listVertexes=[tuple(vertex) for vertex in self._vertexes]
+        view.drawPolygon(listVertexes)   
+        length = len(self._normals)
+        for i in range(length):
+            startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
+            view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
+            view.drawText(i, self.vertexes[i])
+        
+        if self._contactPoint is not None:
+            view.drawPoint(tuple(self._contactPoint))
+
+            
+    def setContactPoint(self, contactPoint):
+        self._contactPoint = contactPoint    
+
     def _calculateArea(self):
        raise NotImplementedError("This method should be overridden by subclass")
     
@@ -79,18 +100,6 @@ class Polygon(Entity):
             normalY = - directionVersor[0]
 
             self._normals.append(np.array((normalX, normalY)))
-
-    def printItself(self, view):
-        listVertexes=[tuple(vertex) for vertex in self._vertexes]
-        view.drawPolygon(listVertexes)   
-        length = len(self._normals)
-        for i in range(length):
-            startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
-            view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
-            view.drawText(i, self.vertexes[i])
-        
-        if self._contactPoint is not None:
-            view.drawPoint(tuple(self._contactPoint))
 
     def _calculateMidPoint(self, vec1:np.ndarray, vec2:np.ndarray) -> np.ndarray:
         return vec1 + (vec2 - vec1) / 2 
@@ -198,10 +207,7 @@ class RegularPolygon(Polygon):
 
     def _calculateApothem(self):
         return (self._length/2)/Utils.sin(180/self._numberOfSides)
-    
-    def setContactPoint(self, contactPoint):
-        self._contactPoint = contactPoint    
-    
+
 class Ball(Entity):
     def __init__(self, position:tuple, raggio:int, materiale:Solid):
         self._id = Entity.id
