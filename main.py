@@ -33,6 +33,12 @@ quadrato2.setAcceleration((-0.05, 0))
 
 campo.addEntity(quadrato2)
 
+quadrato3 = RegularPolygon(40, (700,200), 36, 4, solidGroup.wood)
+quadrato3.setVelocity((-20,0))
+quadrato3.setAcceleration((-0.6, 0))
+
+campo.addEntity(quadrato3)
+
 """for i in range (10):
     e = Ball((80 * i, 60 * i), 32, solidGroup.wood)
     e.setVelocity((10,10))
