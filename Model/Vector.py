@@ -36,7 +36,7 @@ class Vector():
         self._validate_same_dimension(other)
         return Vector(self._vector - other._vector)
     
-    def __mul__(self, other:"Vector" | int | float) -> int | float | "Vector":
+    def __mul__(self, other:Union["Vector", int, float]) -> Union[int, float, "Vector"]:
         """
         . Scalar product or scalar multiplication
             -----------------------------------------
@@ -85,6 +85,9 @@ class Vector():
         . vector /= scalar
         """
         self._vector = self._vector / other
+    
+    def __iter__(self):
+        return iter(self._vector)
 
 #-------------------------------------------------------------------
     def scalarProduct(self, other: "Vector") -> Union[int, float]:

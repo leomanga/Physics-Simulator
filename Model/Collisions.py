@@ -6,6 +6,7 @@ from .Utils import Utils
 from icecream import ic
 
 from typing import Union
+from .Vector import Vector
 
 class CollisionManager():
     @staticmethod
@@ -76,7 +77,7 @@ class CollisionManager():
         
     @staticmethod         
     def _getContactInfoPolVSBall(pol : "Polygon", ball : "Ball", index) -> "ContactInfo":
-        projectionToEdgeNormal = np.dot(ball.position - pol.vertexes[index], pol.normals[index])
+        projectionToEdgeNormal = (ball.position - pol.vertexes[index]) * pol.normals[index]
         if projectionToEdgeNormal < 0:
             projectionToEdgeNormal = -projectionToEdgeNormal
         
@@ -84,7 +85,7 @@ class CollisionManager():
         if penetrationDepth > 0:
             return None
         
-        penetrationPoint = ball.position + np.dot(pol.normals[index], ball.radius * -1)
+        penetrationPoint = ball.position + (pol.normals[index] * ball.radius * -1)
         
         return ContactInfo(penetrationPoint, pol.normals[index], penetrationDepth)
 
@@ -101,17 +102,17 @@ class CollisionManager():
 
     @staticmethod
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
-        return np.dot((pol2Vertex - pol1Vertex) * -1, pol1Normal)
+        return ((pol2Vertex - pol1Vertex) * -1) * pol1Normal
     
     @staticmethod
     def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball") -> Union["ContactInfo", None]:
         contactInfo = None
         for i in range (pol.numberOfSides):
-            direction =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
+            direction: Vector =  pol.vertexes[(i+1) % pol.numberOfSides] - pol.vertexes[i]
 
             dirToCircle = ball.position - pol.vertexes[i]          
 
-            value = np.dot(dirToCircle, Utils.normalize(direction))
+            value = dirToCircle * direction.normalized
 
             if value > 0 and value < pol.sidesLength[i]:
                 info = CollisionManager._getContactInfoPolVSBall(pol, ball, i)
@@ -128,7 +129,10 @@ class CollisionManager():
             if distance <= ball.radius:
                 penetrationPoint = vertex
                 penetrationNormal = Utils.normalize(vertex-ball.position)
-                penetrationDepth = ball.radius - np.linalg.norm(vertex-ball.position)
+
+                offset = vertex-ball.position
+
+                penetrationDepth = ball.radius - offset.norm
 
                 return ContactInfo(penetrationPoint, penetrationNormal, penetrationDepth)
 

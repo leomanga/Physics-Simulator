@@ -4,6 +4,7 @@ from .Utils import Utils
 import numpy as np
 import asyncio
 
+from .Vector import Vector
 
 from icecream import ic
 class EntityGroup():
@@ -76,7 +77,7 @@ class Polygon(Entity):
         for i in range(length):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
             view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
-            view.drawText(i, self.vertexes[i])
+            view.drawText(i, tuple(self.vertexes[i]))
         
         if self._contactPoint is not None:
             view.drawPoint(tuple(self._contactPoint))
@@ -94,27 +95,27 @@ class Polygon(Entity):
     def _calculateNormals(self):
         length = len(self._vertexes)
         for i in range(length):
-            direction : np.array = self.vertexes[i] - self.vertexes[(i + 1) % length]
+            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % length]
             directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -1
             normalX = directionVersor[1]
             normalY = - directionVersor[0]
 
-            self._normals.append(np.array((normalX, normalY)))
+            self._normals.append(Vector((normalX, normalY)))
 
-    def _calculateMidPoint(self, vec1:np.ndarray, vec2:np.ndarray) -> np.ndarray:
+    def _calculateMidPoint(self, vec1:Vector, vec2:Vector) -> Vector:
         return vec1 + (vec2 - vec1) / 2 
     
     def _initSidesLength(self):
         for i in range(self.numberOfSides):
-             direction = self.vertexes[(i+1) % self.numberOfSides] - self.vertexes[i]
-             self._sidesLength.append(np.linalg.norm(direction))
+             direction: Vector = self.vertexes[(i+1) % self.numberOfSides] - self.vertexes[i]
+             self._sidesLength.append(direction.norm)
         
     @property
-    def vertexes(self) -> list[np.ndarray]:
+    def vertexes(self) -> list[Vector]:
         return self._vertexes
     
     @property
-    def normals(self) -> list[np.ndarray]:
+    def normals(self) -> list[Vector]:
         return self._normals
     
     @property    
@@ -142,46 +143,47 @@ class RegularPolygon(Polygon):
         self._id = Entity.id
         Entity.id += 1 
     
-        self._centerOfMass = np.array(centerOfMass)
-        self._velocity = np.array((0,0))
-        self._acceleration = np.array((0,0))
+        self._centerOfMass:Vector = Vector(centerOfMass)
+        self._velocity:Vector = Vector((0,0))
+        self._acceleration:Vector = Vector((0,0))
         
         self._length = length
         self._rotation = rotation
         
         self._numberOfSides = numberOfSides
-        self._vertexes = []
+        self._vertexes:list[Vector] = []
         self._apothem = self._calculateApothem()
         self._area = self._calculateArea()
         self._initVertexes()
         
-        self._normals = []
+        self._normals: list[Vector] = []
         self._calculateNormals()
         
         self._material = material
         self._weight : float = self._calculateWeight()
 
-        self._counter=0
+        self._counter = 0
 
-        self._contactPoint = None
+        self._contactPoint: Vector = None
         self._sidesLength = []
         self._initSidesLength()
     
     def _initVertexes(self):
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
-        x=self._apothem*np.cos(angles)
-        y=self._apothem*np.sin(angles)
-        xOffset=x+self._centerOfMass[0]
-        yOffset=y+self._centerOfMass[1]
+        x:list =self._apothem*np.cos(angles)
+        y:list =self._apothem*np.sin(angles)
+        xOffset:list =x+self._centerOfMass[0]
+        yOffset:list =y+self._centerOfMass[1]
+
         for i in range(self._numberOfSides):
-            self._vertexes.append(np.array((xOffset[i], yOffset[i])))    
+            self._vertexes.append(Vector((xOffset[i], yOffset[i])))    
     
 
-    def setVelocity(self, velocity:tuple):
-        self._velocity = np.array(velocity)
+    def setVelocity(self, velocity:tuple | Vector):
+        self._velocity = Vector(velocity)
     
-    def setAcceleration(self, acceleration:tuple):
-        self._acceleration = np.array(acceleration)
+    def setAcceleration(self, acceleration:tuple | Vector):
+        self._acceleration = Vector(acceleration)
 
     async def move(self, deltaTime:float):
         self._velocity = self._velocity + (self._acceleration * deltaTime)
@@ -214,9 +216,9 @@ class Ball(Entity):
         Entity.id += 1
     
         # position identify the center of the ball
-        self._position = np.array(position)
-        self._velocity = np.array((0,0))
-        self._acceleration = np.array((0,0))
+        self._position = Vector(position)
+        self._velocity = Vector((0,0))
+        self._acceleration = Vector((0,0))
         self._numberOfSides = 16
 
         self._raggio : int = raggio
@@ -231,16 +233,16 @@ class Ball(Entity):
             self._position = self._position + deltaPosition      
 
     def setPosition(self, position:tuple):
-        self._position = np.array(position)
+        self._position = Vector(position)
 
     def setVelocity(self, velocity:tuple):
-        self._velocity = np.array(velocity)
+        self._velocity = Vector(velocity)
     
     def setAcceleration(self, acceleration:tuple):
-        self._acceleration = np.array(acceleration)
+        self._acceleration = Vector(acceleration)
 
     def printItself(self, view):
-        view.drawCircle(self._position, self._raggio)   
+        view.drawCircle(tuple(self._position), self._raggio)   
         """listVertexes=[tuple(vertex) for vertex in self._vertexes]
         view.drawPolygon(listVertexes)  """
 
@@ -254,28 +256,24 @@ class Ball(Entity):
         xOffset=x+self._position[0]
         yOffset=y+self._position[1]
         for i in range(self._numberOfSides):
-            self._vertexes.append(np.array((xOffset[i], yOffset[i])))    
-    
-    @property
-    def vertexes(self) -> list[np.ndarray]:
-        return self._vertexes
+            self._vertexes.append(Vector((xOffset[i], yOffset[i])))    
 
     @property
-    def position(self):
+    def position(self) -> Vector:
         return self._position
     
     @property
-    def radius(self):
+    def radius(self) -> int | float:
         return self._raggio
     
     @property
-    def velocity(self):
+    def velocity(self) -> Vector:
         return self._velocity
     
     @property
-    def acceleration(self):
+    def acceleration(self) -> Vector:
         return self._acceleration
 
     @property
-    def id(self):
+    def id(self) -> int:
         return self._id  
