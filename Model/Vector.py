@@ -22,6 +22,13 @@ class Vector():
         """
         return self._vector[index]
 
+    def __len__(self) -> int:
+        """
+        . len(vector)
+        """
+        return self._dimension
+
+
     def __add__(self, other:"Vector") -> "Vector":
         """
         . result = vector1 + vector2
@@ -44,7 +51,7 @@ class Vector():
             . result(Vector) = vector1 * scalar
         """
         if isinstance(other, Vector):
-            return self.scalarProduct(other)
+            return self._scalarProduct(other)
         
         return Vector(self._vector * other)
     
@@ -67,30 +74,34 @@ class Vector():
         . vector1 += vector2
         """
         self._vector = self._vector + other._vector
+        np.linalg.norm(self._vector)
 
     def __isub__(self, other:"Vector"):
         """
         . vector1 -= vector2
         """
         self._vector = self._vector - other._vector
+        np.linalg.norm(self._vector)
 
     def __imul__(self, other:int | float):
         """
         . vector *= scalar
         """
         self._vector = self._vector * other
+        np.linalg.norm(self._vector)
     
     def __itruediv__(self, other:int | float):
         """
         . vector /= scalar
         """
         self._vector = self._vector / other
+        np.linalg.norm(self._vector)
     
     def __iter__(self):
         return iter(self._vector)
 
 #-------------------------------------------------------------------
-    def scalarProduct(self, other: "Vector") -> Union[int, float]:
+    def _scalarProduct(self, other: "Vector") -> Union[int, float]:
         """
         . You can simply use vector1 * vector2 
         """

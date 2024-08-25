@@ -8,7 +8,24 @@ from icecream import ic
 from typing import Union
 from .Vector import Vector
 
+
 class CollisionManager():
+    @staticmethod
+    def isPointInsideEntity(point:Vector, entity:"Entity") -> bool:
+        if isinstance(entity, Ball):
+            distance: Vector = point - entity.position
+            return True if distance.norm < entity.radius else False
+        else:
+            return CollisionManager._isPointInsidePolygon(point, entity)
+        
+    def _isPointInsidePolygon(point:"Vector", polygon:"Polygon"):
+        for i in range(polygon.numberOfSides):
+            depth = (point - polygon.vertexes[i]) * polygon.normals[i] * -1
+            if depth < 0:
+                return False
+        
+        return True
+        
     @staticmethod
     async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
@@ -19,6 +36,9 @@ class CollisionManager():
          
         elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
             CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
+        
+        else:
+            CollisionManager._manageCollisionBallVSBall(entity1, entity2)
     
     @staticmethod
     def _manageCollisionPolygonVSPolygon(pol1:"Entity", pol2:"Entity"): #usiamo Separate Axis Theorem
@@ -58,6 +78,25 @@ class CollisionManager():
         ball.setAcceleration((0,0))
 
         pol.setContactPoint(contactInfo.penetrationPoint)
+
+    
+    @staticmethod
+    def _manageCollisionBallVSBall(ball1: "Ball", ball2: "Ball"):
+        maxDistance = ball1.radius + ball2.radius
+        direction = ball1.position - ball2.position
+        if direction.norm > maxDistance:
+            return 
+
+        depth = maxDistance - direction.norm
+        penetrationPoint = direction.normalized * (ball2.radius - depth) + ball2.position
+        
+        ball1.setVelocity((0,0))
+        ball1.setAcceleration((0,0))
+        ball2.setVelocity((0,0))
+        ball2.setAcceleration((0,0))
+        ball1._contactPoint = penetrationPoint
+
+
 
     @staticmethod
     def _getContactInfoPolVSPol(pol1:"Polygon", pol2:"Polygon") -> Union["ContactInfo", None]:

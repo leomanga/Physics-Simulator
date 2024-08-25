@@ -1,5 +1,6 @@
 from .Materials import Fluid
 from .Entities import EntityGroup
+from .Vector import Vector
 
 from datetime import datetime
 import time
@@ -27,6 +28,9 @@ class Campo():
 
     def addEntity(self, entity):
         self._entities.addEntity(entity)
+    
+    def manageClick(self, point:tuple):
+        self._entities.manageClick(Vector(point))
 
     @property
     def entities(self) -> list:
