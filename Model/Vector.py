@@ -22,6 +22,12 @@ class Vector():
         """
         return self._vector[index]
 
+    def __setitem__(self, index:int, value:float | int):
+        """
+        . vector[index] = value
+        """
+        self._vector[index] = value
+        
     def __len__(self) -> int:
         """
         . len(vector)
@@ -74,28 +80,32 @@ class Vector():
         . vector1 += vector2
         """
         self._vector = self._vector + other._vector
-        np.linalg.norm(self._vector)
+        self._norm = np.linalg.norm(self._vector)
+        return self
 
     def __isub__(self, other:"Vector"):
         """
         . vector1 -= vector2
         """
         self._vector = self._vector - other._vector
-        np.linalg.norm(self._vector)
+        self._norm = np.linalg.norm(self._vector)
+        return self
 
     def __imul__(self, other:int | float):
         """
         . vector *= scalar
         """
         self._vector = self._vector * other
-        np.linalg.norm(self._vector)
+        self._norm = np.linalg.norm(self._vector)
+        return self
     
     def __itruediv__(self, other:int | float):
         """
         . vector /= scalar
         """
         self._vector = self._vector / other
-        np.linalg.norm(self._vector)
+        self._norm = np.linalg.norm(self._vector)
+        return self
     
     def __iter__(self):
         return iter(self._vector)
@@ -134,4 +144,11 @@ class Vector():
     
     @property
     def norm(self) -> float:
-        return self._norm
+        try:
+            return self._norm
+        except RuntimeWarning:
+            return 0
+    
+class VectorZero(Vector):
+    def __init__(self):
+        super().__init__((0,0,0))
