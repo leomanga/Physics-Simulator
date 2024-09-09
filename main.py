@@ -4,7 +4,7 @@ from Model.Campo import Campo
 from Model.Materials import FluidGroup
 from Model.Materials import SolidGroup
 
-from Model.Entities import Ball, RegularPolygon
+from Model.Entities import Ball, RegularPolygon, IrregularPolygon
 
 from Model.Vector import Vector
 
@@ -17,6 +17,11 @@ solidGroup = SolidGroup()
 
 size = (800, 800)
 campo = Campo(fluidGroup.air, size)
+
+irregolare = IrregularPolygon([(68, 80),(32, 67) , (29, 17), (55, 33)], (200, 200), 0, solidGroup.wood)
+irregolare.setVelocity((12, 12))
+
+campo.addEntity(irregolare)
 
 palla = Ball((300,300), 50, solidGroup.wood)
 

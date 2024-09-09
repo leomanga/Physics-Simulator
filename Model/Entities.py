@@ -74,7 +74,7 @@ class Entity():
         self._material: Solid = material
 
         self._area: float = None
-        self._weight: float = None
+        self._mass: float = None
 
         self._contactPoint: Vector = None
 
@@ -91,6 +91,9 @@ class Entity():
        
     def setContactPoint(self, contactPoint:Vector):
         self._contactPoint = contactPoint   
+    
+    def _initMass(self):
+        self._mass = self._area * self._material.density 
 
     async def move(self, deltaTime:float):
         raise NotImplementedError("This method should be overridden by subclass")
@@ -99,10 +102,7 @@ class Entity():
         raise NotImplementedError("This method should be overridden by subclass")
 
     def _calculateArea(self):
-       raise NotImplementedError("This method should be overridden by subclass")
-
-    def _calculateWeight(self):
-       raise NotImplementedError("This method should be overridden by subclass")
+       raise NotImplementedError("This method should be overridden by subclass") 
 
     @property
     def velocity(self):
@@ -119,6 +119,7 @@ class Entity():
     @property
     def centerOfMass(self):
         return self._centerOfMass
+    
 @dataclass
 class Polygon(Entity):
     def __init__(self, rotation, material):
@@ -130,12 +131,20 @@ class Polygon(Entity):
         self._normals: list[Vector] = []
         
         self._sidesLength: list[float] = []
+        
+    async def move(self, deltaTime:float):
+        self._velocity = self._velocity + (self._acceleration * deltaTime)
+        for i in range(len(self._vertexes)):
+            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime  
+
+        self._centerOfMass = self._centerOfMass + self._velocity * deltaTime          
 
     def printItself(self, view):
         listVertexes=[tuple(vertex) for vertex in self._vertexes]
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawPolygon(listVertexes, color)   
         length = len(self._normals)
+        view.drawText(round(self._mass), tuple(self._centerOfMass))
         for i in range(length):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
             view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
@@ -161,6 +170,12 @@ class Polygon(Entity):
         for i in range(self._numberOfSides):
              direction: Vector = self.vertexes[(i+1) % self._numberOfSides] - self.vertexes[i]
              self._sidesLength.append(direction.norm)
+    
+    def _initArea(self, shape):
+        self._area = 0
+        for i in range(self._numberOfSides):
+            self._area += shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0]
+        self._area /= 2
         
     @property
     def vertexes(self) -> list[Vector]:
@@ -177,7 +192,39 @@ class Polygon(Entity):
     @property
     def sidesLength(self):
         return self._sidesLength
+    
+
+class IrregularPolygon(Polygon):
+    def __init__(self ,shape: list[tuple], centerOfMass: tuple, rotation, material):
+        super().__init__(rotation, material)
+        self._numberOfSides = len(shape)
+        self._centerOfMass = Vector(centerOfMass)
         
+        self._initArea(shape)
+        self._initVertexes(shape)
+        self._calculateNormals()
+        self._initSidesLength()
+        self._initMass()
+        
+    def _initVertexes(self, shape):
+        centroid = self._getCentroid(shape)
+        offset = self._centerOfMass - centroid
+        for i in range(self._numberOfSides):
+            self._vertexes.append(Vector(shape[i])+ offset)
+    
+    def _getCentroid(self, shape):
+        if self._area == None:
+            self._initArea()
+        cx = 0
+        cy = 0 
+        for i in range(self._numberOfSides):
+            cx += (shape[i][0] + shape [(i+1)% self._numberOfSides][0])*(shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0])
+            cy += (shape[i][1] + shape [(i+1)% self._numberOfSides][1])*(shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0])
+        cx /= 6*self._area
+        cy /= 6*self._area
+        return Vector((cx, cy))
+        
+    
 class RegularPolygon(Polygon):
     def __init__(self, sideLength, centerOfMass: tuple, rotation, numberOfSides, material: Solid):
         super().__init__(rotation, material)
@@ -188,14 +235,15 @@ class RegularPolygon(Polygon):
         self._numberOfSides = numberOfSides
 
         self._apothem = self._calculateApothem()
-        self._area = self._calculateArea()
+        
         self._initVertexes()
+        self._initArea(self._vertexes)
                 
         self._material:Solid = material
-        self._weight: float = self._calculateWeight()
-
+        
         self._calculateNormals()
         self._initSidesLength()
+        self._initMass()
     
     def _initVertexes(self):
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
@@ -207,22 +255,9 @@ class RegularPolygon(Polygon):
         for i in range(self._numberOfSides):
             self._vertexes.append(Vector((xOffset[i], yOffset[i])))    
 
-    async def move(self, deltaTime:float):
-        self._velocity = self._velocity + (self._acceleration * deltaTime)
-        for i in range(len(self._vertexes)):
-            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime  
-
-        self._centerOfMass = self._centerOfMass + self._velocity * deltaTime          
-
-    def _calculateWeight(self):
-        """
-        TODO
-        """
-        pass 
-
-    def _calculateArea(self):
+    """def _calculateArea(self):
         perimeter = self._sideLength*self._numberOfSides
-        return 0.5*self._apothem*perimeter
+        return 0.5*self._apothem*perimeter"""
 
     def _calculateApothem(self):
         return (self._sideLength/2)/Utils.sin(180/self._numberOfSides)
@@ -235,7 +270,8 @@ class Ball(Entity):
 
         self._radius : int = raggio
 
-        self._weight : float = self._calculateWeight()
+        self._initArea()
+        self._initMass()
 
     async def move(self, deltaTime:float):
             self._velocity = self._velocity + (self._acceleration * deltaTime)
@@ -248,11 +284,12 @@ class Ball(Entity):
     def printItself(self, view):
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawCircle(tuple(self._centerOfMass), self._radius, color)   
+        view.drawText(round(self._mass), tuple(self._centerOfMass))
         if self._contactPoint is not None:
             view.drawPoint(tuple(self._contactPoint))
-
-    def _calculateWeight(self):
-        return math.pi * self._radius**2 * self._material.density 
+            
+    def _initArea(self):
+        self._area = math.pi * self._radius**2
 
     @property
     def position(self) -> Vector:
