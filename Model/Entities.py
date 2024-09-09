@@ -212,7 +212,7 @@ class RegularPolygon(Polygon):
         for i in range(len(self._vertexes)):
             self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime  
 
-        self._centerOfMass = self._centerOfMass + self._velocity * deltaTime          
+        self._centerOfMass = self._centerOfMass + self._velocity * deltaTime  
 
     def _calculateWeight(self):
         """
