@@ -1,5 +1,3 @@
-from dataclasses import dataclass, field
-
 from .Materials import Solid
 import math
 from .Utils import Utils
@@ -120,14 +118,13 @@ class Entity():
     def centerOfMass(self):
         return self._centerOfMass
     
-@dataclass
 class Polygon(Entity):
     def __init__(self, rotation, material):
         super().__init__(rotation, material)
         
         self._numberOfSides: int = None
 
-        self._vertexes: list[Vector] =[]
+        self._vertexes: list[Vector] = []
         self._normals: list[Vector] = []
         
         self._sidesLength: list[float] = []
