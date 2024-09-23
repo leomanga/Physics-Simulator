@@ -48,9 +48,9 @@ class View():
     def update(self):
         pygame.display.flip()
 
-    def draw(self, entities):
+    def draw(self):
         self._fillScreen(self._screenColor)
-        for e in entities:
+        for e in self._campo.entities:
             e.printItself(self)
         self._printFps()       
             

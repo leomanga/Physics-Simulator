@@ -5,6 +5,7 @@ import numpy as np
 import asyncio
 
 from .Vector import Vector
+from .Vector import VectorZero
 
 from icecream import ic
 class EntityGroup():
@@ -65,6 +66,8 @@ class Entity():
 
         self._centerOfMass: Vector = None
         self._velocity: Vector = Vector((0,0))
+        self._angularVelocity: int = 0
+        self._angularAccelleration: int = 0
         self._acceleration: Vector = Vector((0,0))
 
         self._rotation: int = rotation
@@ -73,6 +76,7 @@ class Entity():
 
         self._area: float = None
         self._mass: float = None
+        self._inertia: float = None
 
         self._contactPoint: Vector = None
 
@@ -83,9 +87,15 @@ class Entity():
     
     def setVelocity(self, velocity:tuple):
         self._velocity = Vector(velocity)
+        
+    def setAngularVelocity(self, angVelocity:int):
+        self._angularVelocity = angVelocity
 
     def setAcceleration(self, acceleration:tuple):
         self._acceleration = Vector(acceleration)
+    
+    def setAngularAcceleration(self, angAcceleration:int):
+        self._angularAccelleration = angAcceleration
        
     def setContactPoint(self, contactPoint:Vector):
         self._contactPoint = contactPoint   
@@ -105,10 +115,18 @@ class Entity():
     @property
     def velocity(self):
         return self._velocity
+    
+    @property
+    def angularVelocity(self):
+        return self._angularVelocity
 
     @property
     def acceleration(self):
         return self._acceleration
+    
+    @property
+    def angularAcceleration(self):
+        return self._angularAccelleration
 
     @property
     def selected(self):
@@ -131,8 +149,12 @@ class Polygon(Entity):
         
     async def move(self, deltaTime:float):
         self._velocity = self._velocity + (self._acceleration * deltaTime)
-        for i in range(len(self._vertexes)):
-            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime  
+        self._angularVelocity = self._angularVelocity + (self._angularAccelleration * deltaTime)
+        for i in range(self._numberOfSides):
+            self._vertexes[i] = Utils.rotate (self._vertexes[i], self._centerOfMass, self._angularVelocity * deltaTime)
+            self._normals[i] = Utils.rotate (self._normals[i], VectorZero(), self._angularVelocity * deltaTime)
+            self._vertexes[i] = self._vertexes[i] + self._velocity * deltaTime
+            
 
         self._centerOfMass = self._centerOfMass + self._velocity * deltaTime          
 
@@ -174,6 +196,17 @@ class Polygon(Entity):
             self._area += shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0]
         self._area /= 2
         
+    def _initInertia(self):
+        self._inertia = 0
+        massPerTriangle = self._mass / self._numberOfSides
+        for i in range(self._numberOfSides):
+            centerToVertice1 = self._vertexes[i] - self._centerOfMass
+            centerToVertice2 = self._vertexes[(i+1)%self._numberOfSides] - self._centerOfMass
+            self._inertia += massPerTriangle * (centerToVertice1.norm + centerToVertice2.norm + centerToVertice1 * centerToVertice2) / 6
+            
+
+        
+        
     @property
     def vertexes(self) -> list[Vector]:
         return self._vertexes
@@ -202,6 +235,7 @@ class IrregularPolygon(Polygon):
         self._calculateNormals()
         self._initSidesLength()
         self._initMass()
+        self._initInertia()
         
     def _initVertexes(self, shape):
         centroid = self._getCentroid(shape)
@@ -241,6 +275,7 @@ class RegularPolygon(Polygon):
         self._calculateNormals()
         self._initSidesLength()
         self._initMass()
+        self._initInertia()
     
     def _initVertexes(self):
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
@@ -269,6 +304,7 @@ class Ball(Entity):
 
         self._initArea()
         self._initMass()
+        self._initInertia()
 
     async def move(self, deltaTime:float):
             self._velocity = self._velocity + (self._acceleration * deltaTime)
@@ -287,6 +323,9 @@ class Ball(Entity):
             
     def _initArea(self):
         self._area = math.pi * self._radius**2
+        
+    def _initInertia(self):
+        self._inertia = 0.5* self._mass* self._radius * self._radius
 
     @property
     def position(self) -> Vector:

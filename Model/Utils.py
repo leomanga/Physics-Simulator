@@ -2,6 +2,7 @@ import numpy as np
 import math
 from icecream import ic
 import asyncio
+from .Vector import Vector
 
 class Utils(): 
     def traslateVector(v1:np.ndarray, v2:np.ndarray) -> np.ndarray:
@@ -14,6 +15,12 @@ class Utils():
     def cos(x:float) -> float:
         #in degrees
         return math.cos(math.radians(x))
+    
+    def rotate(vertex, point, rotationAngle):
+        direction = vertex - point
+        x = direction[0] * Utils.cos(rotationAngle) - direction[1] * Utils.sin(rotationAngle)
+        y = direction[0] * Utils.sin(rotationAngle) + direction[1] * Utils.cos(rotationAngle)       
+        return Vector((x, y)) + point
     
     def ProjectEntityVertexes(direction:np.ndarray, vertexes:list[np.ndarray]) -> tuple[np.ndarray]: 
         #tuple[0]->point1 of the projection, tuple[1] point2 of the projection   

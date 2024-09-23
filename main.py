@@ -33,6 +33,7 @@ campo.addEntity(palla)
 quadrato = RegularPolygon(123, (10,10), 45, 5, solidGroup.wood)
 quadrato.setVelocity((10, 10))
 quadrato.setAcceleration((10, 10))
+quadrato.setAngularVelocity(5)
 
 campo.addEntity(quadrato)
 
@@ -69,7 +70,7 @@ running = True
 
 while running:
     campo.move()
-    view.draw(campo.entities)
+    view.draw()
     view.update()
     eventHandler.handleEvents()
     """

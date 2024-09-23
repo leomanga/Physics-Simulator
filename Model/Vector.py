@@ -151,4 +151,4 @@ class Vector():
     
 class VectorZero(Vector):
     def __init__(self):
-        super().__init__((0,0,0))
+        super().__init__((0,0))
