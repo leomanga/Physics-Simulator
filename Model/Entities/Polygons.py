@@ -29,16 +29,15 @@ class Polygon(Entity):
     def printItself(self, view):
         listVertexes=[tuple(vertex) for vertex in self._vertexes]
         color = view.baseColor if self._selected == False else view.clickedColor
-        view.drawPolygon(listVertexes, color)   
+        view.drawPolygon(listVertexes, color)  
+
         length = len(self._normals)
-        view.drawText(round(self._mass), tuple(self._centerOfMass))
         for i in range(length):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
             view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
             view.drawText(i, tuple(self.vertexes[i]))
-        
-        if self._contactPoint is not None: 
-            view.drawPoint(tuple(self._contactPoint)) 
+
+        super().printItself(view)
 
     def _calculateNormals(self):
         length = len(self._vertexes)
@@ -87,7 +86,6 @@ class Polygon(Entity):
     @property
     def sidesLength(self):
         return self._sidesLength
-    
 
 class IrregularPolygon(Polygon):
     def __init__(self, shape: list[tuple], centerOfMass: tuple, rotation, material):
@@ -119,7 +117,6 @@ class IrregularPolygon(Polygon):
         cx /= 6*self._area
         cy /= 6*self._area
         return Vector((cx, cy))
-        
     
 class RegularPolygon(Polygon):
     def __init__(self, sideLength, centerOfMass: tuple, rotation, numberOfSides, material: Solid):

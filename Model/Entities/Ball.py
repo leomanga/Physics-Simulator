@@ -28,13 +28,12 @@ class Ball(Entity):
     def printItself(self, view):
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawCircle(tuple(self._centerOfMass), self._radius, color)   
-        view.drawText(round(self._mass), tuple(self._centerOfMass))
 
         vector = self._centerOfMass + Vector((self._radius, 0))
         directionVector = Utils.rotate(vector, self._centerOfMass, self._rotation)
         view.drawLine(self._centerOfMass, directionVector, (0,0,0))
-        if self._contactPoint is not None:
-            view.drawPoint(tuple(self._contactPoint))
+
+        super().printItself(view)
             
     def _initArea(self):
         self._area = math.pi * self._radius**2
