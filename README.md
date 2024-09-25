@@ -1,11 +1,11 @@
-#TODO
-    - aggiungere accelerazione al campo
-    - gestione urti
-        - rimbalsi
-        - possibilità di ruotare
-    - gestione attrito
-        - con aria
-        - con solidi
-        - rotolamento
-    - gestione grandezza finestra, in base alla risoluzione dello schermo
-    - far vedere i vettori velocità e accelerazione
+## TODO
+    - [ ] Aggiungere accelerazione al campo
+    - [ ] gestione urti
+        - [ ] rimbalsi
+        - [x] possibilità di ruotare
+    - [ ] gestione attrito
+        - [ ] con aria
+        - [ ] con solidi
+        - [ ] rotolamento
+    - [ ] gestione grandezza finestra, in base alla risoluzione dello schermo
+    - [ ] far vedere i vettori velocità e accelerazione

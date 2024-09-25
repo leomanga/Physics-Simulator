@@ -1,6 +1,9 @@
 import numpy as np
 
-from .Entities import Entity, Polygon, Ball
+from .Entities.Ball import Ball
+from .Entities.EntityGroup import EntityGroup
+from .Entities.Entity import Entity
+from .Entities.Polygons import Polygon
 from .Utils import Utils
 
 from icecream import ic
@@ -25,7 +28,61 @@ class CollisionManager():
                 return False
         
         return True
+    
+    @staticmethod
+    def manageElementsVsBorderCollisions(entityGroup: EntityGroup, size: tuple):
+        """
+        TODO:
+            - quando faremo oggetti fissi avrà senso rimuovere questa funzione e mettere degli oggetti ai bordi
+        """
+        for entity in entityGroup:
+            if isinstance(entity, Polygon):
+                CollisionManager._managePolygonVSBorder(entity, size)
+            
+            elif isinstance(entity, Ball):
+                CollisionManager._manageBallVSBorder(entity, size)
+
+    @staticmethod
+    def _managePolygonVSBorder(polygon: Polygon, size: tuple):
+        for vertex in polygon.vertexes:
+            if CollisionManager._isVertexInsideBorder(vertex, size):
+                polygon.stopMotion()
+                return
+            
+
+    @staticmethod
+    def _manageBallVSBorder(ball: Ball, size: tuple):
+        if not CollisionManager._isBallCollidingBorder(ball, size):
+            return 
         
+        ball.stopMotion()
+
+    @staticmethod
+    def _isVertexInsideBorder(vertex: Vector, size: tuple):
+        if vertex[0] < 0: # left
+            return True
+        if vertex[1] < 0: # up
+            return True
+        if vertex[0] > size[0]: # right
+            return True
+        if vertex[1] > size[1]: # down
+            return True
+        
+        return False
+
+    @staticmethod
+    def _isBallCollidingBorder(ball: Ball, size: tuple):
+        if ball.centerOfMass[0] - ball.radius < 0: # left
+            return True
+        if ball.centerOfMass[1] - ball.radius < 0: # up
+            return True
+        if ball.centerOfMass[0] + ball.radius > size[0]: # right
+            return True
+        if ball.centerOfMass[1] + ball.radius > size[1]: # down
+            return True
+        
+        return False
+
     @staticmethod
     async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
@@ -55,8 +112,8 @@ class CollisionManager():
         if contactInfo1.penetrationDepth > contactInfo2.penetrationDepth:
             contactInfo = contactInfo2
 
-        pol1.setVelocity((0,0))
-        pol2.setVelocity((0,0))
+        pol1.stopMotion()
+        pol2.stopMotion()
 
         pol1.setContactPoint(contactInfo.penetrationPoint)
         pol2.setContactPoint(contactInfo.penetrationPoint)
@@ -71,11 +128,8 @@ class CollisionManager():
         if contactInfo is None:
             return
         
-        pol.setVelocity((0,0))
-        ball.setVelocity((0,0))
-
-        pol.setAcceleration((0,0))
-        ball.setAcceleration((0,0))
+        pol.stopMotion()
+        ball.stopMotion()
 
         pol.setContactPoint(contactInfo.penetrationPoint)
 
@@ -90,10 +144,8 @@ class CollisionManager():
         depth = maxDistance - direction.norm
         penetrationPoint = direction.normalized * (ball2.radius - depth) + ball2.position
         
-        ball1.setVelocity((0,0))
-        ball1.setAcceleration((0,0))
-        ball2.setVelocity((0,0))
-        ball2.setAcceleration((0,0))
+        ball1.stopMotion()
+        ball2.stopMotion()
         ball1._contactPoint = penetrationPoint
 
 

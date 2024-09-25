@@ -1,6 +1,7 @@
 from .Materials import Fluid
-from .Entities import EntityGroup
+from .Entities.EntityGroup import EntityGroup
 from .Vector import Vector
+from .Collisions import CollisionManager
 
 from datetime import datetime
 import time
@@ -25,6 +26,12 @@ class Campo():
         self._lastTime = newTime
 
         self._entities.move(deltaTime.total_seconds())
+        self._entities.manageCollisions()
+
+        self._manageBorderCollision()
+
+    def _manageBorderCollision(self):
+        CollisionManager.manageElementsVsBorderCollisions(self._entities, self._size)
 
     def addEntity(self, entity):
         self._entities.addEntity(entity)

@@ -1,0 +1,160 @@
+import math
+import numpy as np
+
+from ..Materials import Solid
+from ..Utils import Utils
+from ..Vector import Vector, VectorZero
+from Model.Entities.Entity import Entity
+
+from icecream import ic
+
+class Polygon(Entity):
+    def __init__(self, rotation, material):
+        super().__init__(rotation, material)
+        
+        self._numberOfSides: int = None
+
+        self._vertexes: list[Vector] = []
+        self._normals: list[Vector] = []
+        
+        self._sidesLength: list[float] = []
+        
+    async def move(self, deltaTime:float):
+        self._updateMotions(deltaTime)
+        for i in range(self._numberOfSides):
+            movedVertex = self._vertexes[i] + self._velocity * deltaTime
+            self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, self._angularVelocity * deltaTime)
+            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), self._angularVelocity * deltaTime)     
+
+    def printItself(self, view):
+        listVertexes=[tuple(vertex) for vertex in self._vertexes]
+        color = view.baseColor if self._selected == False else view.clickedColor
+        view.drawPolygon(listVertexes, color)   
+        length = len(self._normals)
+        view.drawText(round(self._mass), tuple(self._centerOfMass))
+        for i in range(length):
+            startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
+            view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
+            view.drawText(i, tuple(self.vertexes[i]))
+        
+        if self._contactPoint is not None: 
+            view.drawPoint(tuple(self._contactPoint)) 
+
+    def _calculateNormals(self):
+        length = len(self._vertexes)
+        for i in range(length):
+            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % length]
+            directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -1
+            normalX = directionVersor[1]
+            normalY = - directionVersor[0]
+
+            self._normals.append(Vector((normalX, normalY)))
+
+    def _calculateMidPoint(self, vec1:Vector, vec2:Vector) -> Vector:
+        return vec1 + (vec2 - vec1) / 2 
+    
+    def _initSidesLength(self):
+        for i in range(self._numberOfSides):
+             direction: Vector = self.vertexes[(i+1) % self._numberOfSides] - self.vertexes[i]
+             self._sidesLength.append(direction.norm)
+    
+    def _initArea(self, shape):
+        self._area = 0
+        for i in range(self._numberOfSides):
+            self._area += shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0]
+        self._area /= 2
+        
+    def _initInertia(self):
+        self._inertia = 0
+        massPerTriangle = self._mass / self._numberOfSides
+        for i in range(self._numberOfSides):
+            centerToVertice1 = self._vertexes[i] - self._centerOfMass
+            centerToVertice2 = self._vertexes[(i+1)%self._numberOfSides] - self._centerOfMass
+            self._inertia += massPerTriangle * (centerToVertice1.norm + centerToVertice2.norm + centerToVertice1 * centerToVertice2) / 6
+
+    @property
+    def vertexes(self) -> list[Vector]:
+        return self._vertexes
+    
+    @property
+    def normals(self) -> list[Vector]:
+        return self._normals
+    
+    @property
+    def numberOfSides(self):
+        return self._numberOfSides
+    
+    @property
+    def sidesLength(self):
+        return self._sidesLength
+    
+
+class IrregularPolygon(Polygon):
+    def __init__(self, shape: list[tuple], centerOfMass: tuple, rotation, material):
+        super().__init__(rotation, material)
+        self._numberOfSides = len(shape)
+        self._centerOfMass = Vector(centerOfMass)
+        
+        self._initArea(shape)
+        self._initVertexes(shape)
+        self._calculateNormals()
+        self._initSidesLength()
+        self._initMass()
+        self._initInertia()
+        
+    def _initVertexes(self, shape):
+        centroid = self._getCentroid(shape)
+        offset = self._centerOfMass - centroid
+        for i in range(self._numberOfSides):
+            self._vertexes.append(Vector(shape[i])+ offset)
+    
+    def _getCentroid(self, shape):
+        if self._area == None:
+            self._initArea()
+        cx = 0
+        cy = 0 
+        for i in range(self._numberOfSides):
+            cx += (shape[i][0] + shape [(i+1)% self._numberOfSides][0])*(shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0])
+            cy += (shape[i][1] + shape [(i+1)% self._numberOfSides][1])*(shape[i][0]*shape[(i+1) % self._numberOfSides][1] - shape[i][1]*shape[(i+1) % self._numberOfSides][0])
+        cx /= 6*self._area
+        cy /= 6*self._area
+        return Vector((cx, cy))
+        
+    
+class RegularPolygon(Polygon):
+    def __init__(self, sideLength, centerOfMass: tuple, rotation, numberOfSides, material: Solid):
+        super().__init__(rotation, material)
+        
+        self._sideLength = sideLength
+        self._centerOfMass = Vector(centerOfMass)
+
+        self._numberOfSides = numberOfSides
+
+        self._apothem = self._calculateApothem()
+        
+        self._initVertexes()
+        self._initArea(self._vertexes)
+                
+        self._material:Solid = material
+        
+        self._calculateNormals()
+        self._initSidesLength()
+        self._initMass()
+        self._initInertia()
+    
+    def _initVertexes(self):
+        angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
+        x:list =self._apothem*np.cos(angles)
+        y:list =self._apothem*np.sin(angles)
+        xOffset:list =x+self._centerOfMass[0]
+        yOffset:list =y+self._centerOfMass[1]
+
+        for i in range(self._numberOfSides):
+            self._vertexes.append(Vector((xOffset[i], yOffset[i])))    
+
+    """def _calculateArea(self):
+        perimeter = self._sideLength*self._numberOfSides
+        return 0.5*self._apothem*perimeter"""
+
+    def _calculateApothem(self):
+        return (self._sideLength/2)/Utils.sin(180/self._numberOfSides)
