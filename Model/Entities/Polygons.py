@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from abc import ABC, abstractmethod
 
 from ..Materials import Solid
 from ..Utils import Utils
@@ -8,7 +9,7 @@ from Model.Entities.Entity import Entity
 
 from icecream import ic
 
-class Polygon(Entity):
+class Polygon(Entity, ABC):
     def __init__(self, rotation, material):
         super().__init__(rotation, material)
         
@@ -38,6 +39,18 @@ class Polygon(Entity):
             view.drawText(i, tuple(self.vertexes[i]))
 
         super().printItself(view)
+    
+    def _initProperties(self):
+        if len(self._vertexes) == 0:
+                raise NotImplementedError(
+                   "The _vertexes list is not initialized. Ensure that _vertexes is populated with valid data before calling _initProperties, as it relies on vertex information to function correctly."
+                )
+
+        self._initArea(self._vertexes)
+        self._calculateNormals()
+        self._initSidesLength() # It has to be initialized in a subclass
+        self._initMass()
+        self._initInertia()
 
     def _calculateNormals(self):
         length = len(self._vertexes)
@@ -52,10 +65,9 @@ class Polygon(Entity):
     def _calculateMidPoint(self, vec1:Vector, vec2:Vector) -> Vector:
         return vec1 + (vec2 - vec1) / 2 
     
+    @abstractmethod
     def _initSidesLength(self):
-        for i in range(self._numberOfSides):
-             direction: Vector = self.vertexes[(i+1) % self._numberOfSides] - self.vertexes[i]
-             self._sidesLength.append(direction.norm)
+        pass
     
     def _initArea(self, shape):
         self._area = 0
@@ -93,22 +105,23 @@ class IrregularPolygon(Polygon):
         self._numberOfSides = len(shape)
         self._centerOfMass = Vector(centerOfMass)
         
-        self._initArea(shape)
         self._initVertexes(shape)
-        self._calculateNormals()
-        self._initSidesLength()
-        self._initMass()
-        self._initInertia()
-        
+        self._initProperties()
+
     def _initVertexes(self, shape):
         centroid = self._getCentroid(shape)
         offset = self._centerOfMass - centroid
         for i in range(self._numberOfSides):
             self._vertexes.append(Vector(shape[i])+ offset)
+        
+    def _initSidesLength(self):
+        for i in range(self._numberOfSides):
+            direction: Vector = self.vertexes[(i+1) % self._numberOfSides] - self.vertexes[i]
+            self._sidesLength.append(direction.norm)
     
     def _getCentroid(self, shape):
         if self._area == None:
-            self._initArea()
+            self._initArea(shape)
         cx = 0
         cy = 0 
         for i in range(self._numberOfSides):
@@ -121,37 +134,29 @@ class IrregularPolygon(Polygon):
 class RegularPolygon(Polygon):
     def __init__(self, sideLength, centerOfMass: tuple, rotation, numberOfSides, material: Solid):
         super().__init__(rotation, material)
+        self._numberOfSides = numberOfSides
+        self._centerOfMass = Vector(centerOfMass)
         
         self._sideLength = sideLength
-        self._centerOfMass = Vector(centerOfMass)
-
-        self._numberOfSides = numberOfSides
 
         self._apothem = self._calculateApothem()
         
         self._initVertexes()
-        self._initArea(self._vertexes)
-                
-        self._material:Solid = material
-        
-        self._calculateNormals()
-        self._initSidesLength()
-        self._initMass()
-        self._initInertia()
+        self._initProperties()
     
-    def _initVertexes(self):
+    def _initVertexes(self):            
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)
-        x:list =self._apothem*np.cos(angles)
-        y:list =self._apothem*np.sin(angles)
+        x:list = self._apothem*np.cos(angles)
+        y:list = self._apothem*np.sin(angles)
         xOffset:list =x+self._centerOfMass[0]
         yOffset:list =y+self._centerOfMass[1]
 
         for i in range(self._numberOfSides):
             self._vertexes.append(Vector((xOffset[i], yOffset[i])))    
-
-    """def _calculateArea(self):
-        perimeter = self._sideLength*self._numberOfSides
-        return 0.5*self._apothem*perimeter"""
+    
+    def _initSidesLength(self):
+        for i in range(self._numberOfSides):
+            self._sidesLength.append(self._sideLength)
 
     def _calculateApothem(self):
         return (self._sideLength/2)/Utils.sin(180/self._numberOfSides)
