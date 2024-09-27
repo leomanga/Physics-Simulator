@@ -1,7 +1,7 @@
 from .Materials import Fluid
 from .Entities.EntityGroup import EntityGroup
 from .Vector import Vector
-from .Collisions import CollisionManager
+from .CollisionDetector import CollisionManager
 
 from datetime import datetime
 import time

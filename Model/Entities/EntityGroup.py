@@ -46,7 +46,7 @@ class EntityGroup():
         Utils.runAsyncTasks(self._loop, tasks)
     
     def manageCollisions(self):
-        from ..Collisions import CollisionManager
+        from ..CollisionDetector import CollisionManager
         numberOfEntities = len(self._entities)
         #migliorini
         tasks = []

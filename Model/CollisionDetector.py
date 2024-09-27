@@ -85,17 +85,22 @@ class CollisionManager():
 
     @staticmethod
     async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
+        info = None
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
-            CollisionManager._manageCollisionPolygonVSPolygon(entity1, entity2)
+            info = CollisionManager._manageCollisionPolygonVSPolygon(entity1, entity2)
 
         elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
-            CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
+            info = CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
          
         elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
-            CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
+            info = CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
         
         else:
-            CollisionManager._manageCollisionBallVSBall(entity1, entity2)
+            info = CollisionManager._manageCollisionBallVSBall(entity1, entity2)
+        
+        #CollisionResolver.manageImpulse(entity1, entity2, info)
+        
+            
     
     @staticmethod
     def _manageCollisionPolygonVSPolygon(pol1:"Entity", pol2:"Entity"): #usiamo Separate Axis Theorem
@@ -117,6 +122,7 @@ class CollisionManager():
 
         pol1.setContactPoint(contactInfo.penetrationPoint)
         pol2.setContactPoint(contactInfo.penetrationPoint)
+        return contactInfo
  
     @staticmethod
     def _manageCollisionBallVSPolygon(pol:"Polygon", ball:"Ball"):
@@ -132,6 +138,7 @@ class CollisionManager():
         ball.stopMotion()
 
         pol.setContactPoint(contactInfo.penetrationPoint)
+        return contactInfo
 
     
     @staticmethod
@@ -147,24 +154,24 @@ class CollisionManager():
         ball1.stopMotion()
         ball2.stopMotion()
         ball1._contactPoint = penetrationPoint
+        
+        return ContactInfo(penetrationPoint, direction, depth)
 
 
 
     @staticmethod
     def _getContactInfoPolVSPol(pol1:"Polygon", pol2:"Polygon") -> Union["ContactInfo", None]:
-        minDepth , minSupportPoint = CollisionManager._findSupportPoint(pol1, pol2, 0)
+        minDepth , minSupportPoint, minNormal = CollisionManager._findSupportPoint(pol1, pol2, 0)
         for i in range(1, pol1.numberOfSides):
-            depth, supportPoint = CollisionManager._findSupportPoint(pol1, pol2, i)
+            depth, supportPoint, normal = CollisionManager._findSupportPoint(pol1, pol2, i)
             if depth < 0 :
                 return None
             if depth < minDepth :
                 minDepth = depth
                 minSupportPoint = supportPoint
-        """
-        TODO:
-        -inserire la penetration normal, per ora è None
-        """
-        return ContactInfo(minSupportPoint, None, minDepth)
+                minNormal = normal
+      
+        return ContactInfo(minSupportPoint, minNormal , minDepth)
         
     @staticmethod         
     def _getContactInfoPolVSBall(pol : "Polygon", ball : "Ball", index) -> "ContactInfo":
@@ -184,12 +191,14 @@ class CollisionManager():
     def _findSupportPoint(pol1, pol2, vertexIndex) -> tuple:
         maxDepth = CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[0])
         maxSupportPoint = pol2.vertexes[0]
+        maxNormal = pol2.normals[0]
         for i in range(1, pol2.numberOfSides):
             depth=CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[i])
             if depth > maxDepth:
                 maxDepth = depth
                 maxSupportPoint = pol2.vertexes[i]
-        return maxDepth, maxSupportPoint
+                maxNormal = pol2.normals[i]
+        return maxDepth, maxSupportPoint, maxNormal
 
     @staticmethod
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
@@ -226,6 +235,7 @@ class CollisionManager():
                 penetrationDepth = ball.radius - offset.norm
 
                 return ContactInfo(penetrationPoint, penetrationNormal, penetrationDepth)
+            
 
             
 class ContactInfo():

@@ -11,9 +11,9 @@ class Entity():
 
         self._centerOfMass: Vector = None
         self._velocity: Vector = Vector((0,0))
+        self._acceleration: Vector = Vector((0,0))
         self._angularVelocity: int = 0
         self._angularAccelleration: int = 0
-        self._acceleration: Vector = Vector((0,0))
 
         self._rotation: int = rotation
 
