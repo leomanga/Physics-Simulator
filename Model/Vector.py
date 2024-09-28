@@ -128,7 +128,8 @@ class Vector():
         if self._dimension != other._dimension:
             raise ValueError("Vectors must have the same dimension")
         
-    def _cross(self, other: "Vector"):
+    def cross(self, other: "Vector"):
+        self._validate_same_dimension(other)
         return Vector(np.cross(self._vector, other._vector))
     
     @property

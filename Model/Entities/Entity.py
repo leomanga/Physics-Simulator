@@ -73,6 +73,10 @@ class Entity():
        raise NotImplementedError("This method should be overridden by subclass") 
 
     @property
+    def mass(self):
+        return self._mass
+    
+    @property
     def velocity(self):
         return self._velocity
     
@@ -95,3 +99,7 @@ class Entity():
     @property
     def centerOfMass(self):
         return self._centerOfMass
+    
+    @centerOfMass.setter
+    def centerOfMass(self, value):
+        self._centerOfMass = value
