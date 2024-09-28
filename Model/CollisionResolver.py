@@ -11,3 +11,5 @@ from icecream import ic
 from typing import Union
 from .Vector import Vector
 
+class CollisionResolver():
+    pass

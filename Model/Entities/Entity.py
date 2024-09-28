@@ -56,17 +56,17 @@ class Entity():
         if self._contactPoint is not None:
             view.drawPoint(tuple(self._contactPoint))
 
-    def _updateMotions(self, deltaTime: float):
+    def _updateMotions(self, deltaTime: float, deltaSpace: Vector, deltaAngle: Vector):
         self._angularVelocity = self._angularVelocity + (self._angularAccelleration * deltaTime)
-        self._rotation = self._rotation + self._angularVelocity * deltaTime
+        self._rotation = self._rotation + deltaAngle
 
         self._velocity = self._velocity + (self._acceleration * deltaTime)
-        self._centerOfMass = self._centerOfMass + self._velocity * deltaTime   
+        self._centerOfMass = self._centerOfMass + deltaSpace
     
     def _initMass(self):
         self._mass = self._area * self._material.density 
 
-    async def move(self, deltaTime:float):
+    async def move(self, deltaTime: float):
         raise NotImplementedError("This method should be overridden by subclass")
 
     def _calculateArea(self):

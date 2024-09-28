@@ -127,6 +127,9 @@ class Vector():
     def _validate_same_dimension(self, other: "Vector"):
         if self._dimension != other._dimension:
             raise ValueError("Vectors must have the same dimension")
+        
+    def _cross(self, other: "Vector"):
+        return Vector(np.cross(self._vector, other._vector))
     
     @property
     def normalized(self) -> "Vector":

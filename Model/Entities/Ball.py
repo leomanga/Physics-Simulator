@@ -20,7 +20,9 @@ class Ball(Entity):
         self._initInertia()
 
     async def move(self, deltaTime:float):
-            self._updateMotions(deltaTime)
+            deltaSpace = self._velocity* deltaTime
+            deltaAngle = self._angularVelocity* deltaTime
+            self._updateMotions(deltaTime, deltaSpace, deltaAngle)
 
     def setPosition(self, position:tuple):
         self._centerOfMass = Vector(position)

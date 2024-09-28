@@ -21,11 +21,13 @@ class Polygon(Entity, ABC):
         self._sidesLength: list[float] = []
         
     async def move(self, deltaTime:float):
-        self._updateMotions(deltaTime)
+        deltaSpace = self._velocity * deltaTime
+        deltaAngle = self._angularVelocity * deltaTime
+        self._updateMotions(deltaTime, deltaSpace, deltaAngle)
         for i in range(self._numberOfSides):
-            movedVertex = self._vertexes[i] + self._velocity * deltaTime
-            self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, self._angularVelocity * deltaTime)
-            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), self._angularVelocity * deltaTime)     
+            movedVertex = self._vertexes[i] + deltaSpace
+            self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, deltaAngle)
+            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), deltaAngle)     
 
     def printItself(self, view):
         listVertexes=[tuple(vertex) for vertex in self._vertexes]
