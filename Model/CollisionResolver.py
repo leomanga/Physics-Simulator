@@ -25,7 +25,8 @@ class CollisionResolver():
         correction = 0.001 * (entity1.mass * entity2.mass) / (entity1.mass + entity2.mass)
         amountToCorrect = info.penetrationDepth / correction
         correctionVector = info.penetrationNormal * amountToCorrect
-        movementOne = -(correctionVector / entity1.mass)
-        movementTwo = (correctionVector / entity2.mass)
+        movementOne = (correctionVector / entity1.mass)
+        movementTwo = -(correctionVector / entity2.mass)
         CollisionResolver.move(entity1, movementOne)
         CollisionResolver.move(entity2, movementTwo)
+ 

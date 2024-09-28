@@ -34,6 +34,8 @@ class Spawner:
         quadrato2 = RegularPolygon(40, (650,200), 45, 4, solidGroup.wood)
         quadrato2.setVelocity((-20,0))
         quadrato2.setAcceleration((-0.05, 0))
+        
+
 
         self._campo.addEntity(quadrato2)
 

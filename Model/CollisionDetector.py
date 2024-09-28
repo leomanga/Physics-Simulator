@@ -50,7 +50,7 @@ class CollisionManager():
     def _managePolygonVSBorder(polygon: Polygon, size: tuple):
         for vertex in polygon.vertexes:
             if CollisionManager._isVertexInsideBorder(vertex, size):
-                polygon.stopMotion()
+                #polygon.stopMotion()
                 return
             
 
@@ -59,7 +59,7 @@ class CollisionManager():
         if not CollisionManager._isBallCollidingBorder(ball, size):
             return 
         
-        ball.stopMotion()
+        #ball.stopMotion()
 
     @staticmethod
     def _isVertexInsideBorder(vertex: Vector, size: tuple):
@@ -122,8 +122,8 @@ class CollisionManager():
         if contactInfo1.penetrationDepth > contactInfo2.penetrationDepth:
             contactInfo = contactInfo2
 
-        pol1.stopMotion()
-        pol2.stopMotion()
+        #pol1.stopMotion()
+        #pol2.stopMotion()
 
         pol1.setContactPoint(contactInfo.penetrationPoint)
         pol2.setContactPoint(contactInfo.penetrationPoint)
@@ -139,8 +139,8 @@ class CollisionManager():
         if contactInfo is None:
             return
         
-        pol.stopMotion()
-        ball.stopMotion()
+        #pol.stopMotion()
+        #ball.stopMotion()
 
         pol.setContactPoint(contactInfo.penetrationPoint)
         return contactInfo
@@ -156,8 +156,8 @@ class CollisionManager():
         depth = maxDistance - direction.norm
         penetrationPoint = direction.normalized * (ball2.radius - depth) + ball2.position
         
-        ball1.stopMotion()
-        ball2.stopMotion()
+        #ball1.stopMotion()
+        #ball2.stopMotion()
         ball1._contactPoint = penetrationPoint
         
         return ContactInfo(penetrationPoint, direction, depth)
@@ -236,17 +236,17 @@ class CollisionManager():
         if (projectionToEdgeNormal - ball.radius) < 0:
             penetration = projectionToEdgeNormal - ball.radius
             penetrationPoint = ball.centerOfMass + nearestEdgeNormal*ball.radius*-1
-            return ContactInfo(penetrationPoint, -nearestEdgeNormal, -penetration)
+            return ContactInfo(penetrationPoint, nearestEdgeNormal, -penetration)
     
         return None
     
     @staticmethod
     def _manageCircleVsPolygonVertices(pol : "Polygon", ball : "Ball") -> Union["ContactInfo", None]:
         for vertex in pol.vertexes:
-            distance = Utils.calculateDistance(vertex, ball.position)
+            distance = (vertex-ball.centerOfMass).norm
             if distance <= ball.radius:
                 penetrationPoint = vertex
-                penetrationNormal = Utils.normalize(vertex-ball.position)
+                penetrationNormal = (vertex-ball.position).normalized
 
                 offset = vertex-ball.position
 
