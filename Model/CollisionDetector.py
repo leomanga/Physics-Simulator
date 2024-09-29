@@ -107,6 +107,7 @@ class CollisionManager():
         
         if info is not None:
             CollisionResolver.positionalCorrection(entity1, entity2, info)
+            #CollisionResolver.manageImpulse(entity1, entity2, info)
         
     @staticmethod
     def _boundingBoxCollides(entity1: Entity, entity2: Entity):
