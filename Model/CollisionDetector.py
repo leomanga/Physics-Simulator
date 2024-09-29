@@ -88,7 +88,7 @@ class CollisionManager():
         return False
 
     @staticmethod
-    async def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
+    def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
         info = None
         if not CollisionManager._boundingBoxCollides(entity1, entity2):
             return
@@ -96,16 +96,12 @@ class CollisionManager():
         if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
             info = CollisionManager._manageCollisionPolygonVSPolygon(entity1, entity2)
 
-         
         elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
             info = CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
         
         elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
             info = CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
-            entity3 = entity2
-            entity2 = entity1
-            entity1 = entity3
-        
+            entity1, entity2 = entity2, entity1
         else:
             info = CollisionManager._manageCollisionBallVSBall(entity1, entity2)
         
@@ -115,10 +111,10 @@ class CollisionManager():
         
     @staticmethod
     def _boundingBoxCollides(entity1: Entity, entity2: Entity):
-        if not (entity1._boundingBox.bottomRight[0] > entity2._boundingBox.topLeft[0] and entity2._boundingBox.bottomRight[0] > entity1._boundingBox.topLeft[0]):
+        if not (entity1.boundingBox.bottomRight[0] > entity2.boundingBox.topLeft[0] and entity2.boundingBox.bottomRight[0] > entity1.boundingBox.topLeft[0]):
             return False
         
-        if entity1._boundingBox.topLeft[1] < entity2._boundingBox.bottomRight[1] and entity2._boundingBox.topLeft[1] < entity1._boundingBox.bottomRight[1]:
+        if entity1.boundingBox.topLeft[1] < entity2.boundingBox.bottomRight[1] and entity2.boundingBox.topLeft[1] < entity1.boundingBox.bottomRight[1]:
             return True
         
         return False
