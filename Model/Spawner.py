@@ -28,12 +28,24 @@ class Spawner:
         quadrato.setVelocity((10, 10))
         quadrato.setAcceleration((10, 10))
         quadrato.setAngularVelocity(5)
+        
+        quadrato3 = RegularPolygon(70, (30,30), 0, 5,solidGroup.wood)
+        quadrato3.setVelocity((10,0))
+        quadrato4 = RegularPolygon(59, (400,90), 0, 4, solidGroup.wood)
+        quadrato4.setVelocity((-10,0))
+        
+        self._campo.addEntity(quadrato3)
+        self._campo.addEntity(quadrato4)
+        
+        
 
         self._campo.addEntity(quadrato)
 
         quadrato2 = RegularPolygon(40, (650,200), 45, 4, solidGroup.wood)
         quadrato2.setVelocity((-20,0))
         quadrato2.setAcceleration((-0.05, 0))
+        
+
 
         self._campo.addEntity(quadrato2)
 

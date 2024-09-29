@@ -64,7 +64,7 @@ class Polygon(Entity, ABC):
         length = len(self._vertexes)
         for i in range(length):
             direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % length]
-            directionVersor = direction / math.sqrt(direction[0] ** 2 + direction[1] ** 2) * -1
+            directionVersor = -direction.normalized
             normalX = directionVersor[1]
             normalY = - directionVersor[0]
 
