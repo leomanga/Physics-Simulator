@@ -7,8 +7,8 @@ class SpatialGrid():
     def __init__(self, size: tuple, nCellsAxis: tuple, entityGroup: EntityGroup):
         self._size = size
 
-        self._gridColLength = self._size[0] / nCellsAxis[0]
-        self._gridRowLength = self._size[1] / nCellsAxis[1]
+        self._gridColLength = self._size[0] / nCellsAxis[0] + 1 # +1 to avoid error to the borders
+        self._gridRowLength = self._size[1] / nCellsAxis[1] + 1 # +1 to avoid error to the borders
 
         self._nCellsAxis = nCellsAxis
 

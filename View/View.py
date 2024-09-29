@@ -87,7 +87,7 @@ class View():
             xIndex = int(i%(nCols))
             yIndex = int(i/(nCols))
             coord = (xIndex * colLength, yIndex * rowLength)
-            self.drawText(f"{nEntities}", coord)
+            #self.drawText(f"{nEntities}", coord)
             #ic("VIEW->", coord, i, str(nEntities))
            
 

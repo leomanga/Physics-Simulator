@@ -13,7 +13,7 @@ class Campo():
 
         self._composition : Fluid = composition
         self._size = size
-        self._spatialGrid = SpatialGrid(size, (7,5), self._entities)
+        self._spatialGrid = SpatialGrid(size, (5,5), self._entities)
         self._lastTime = None
 
     def move(self):
