@@ -32,6 +32,4 @@ class CollisionResolver():
         
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
-        
-        
- 
+        pass
