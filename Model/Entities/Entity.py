@@ -12,10 +12,10 @@ class Entity():
         self._centerOfMass: Vector = None
         self._velocity: Vector = Vector((0,0))
         self._acceleration: Vector = Vector((0,0))
-        self._angularVelocity: int = 0
-        self._angularAccelleration: int = 0
+        self._angularVelocity: float = 0
+        self._angularAccelleration: float = 0
 
-        self._rotation: int = rotation
+        self._rotation: float = rotation
 
         self._material: Solid = material
 
@@ -77,33 +77,37 @@ class Entity():
        raise NotImplementedError("This method should be overridden by subclass") 
 
     @property
-    def mass(self):
+    def mass(self) -> float:
         return self._mass
     
     @property
-    def velocity(self):
+    def velocity(self) -> Vector:
         return self._velocity
     
     @property
-    def angularVelocity(self):
+    def angularVelocity(self) -> float:
         return self._angularVelocity
 
     @property
-    def acceleration(self):
+    def acceleration(self) -> Vector:
         return self._acceleration
     
     @property
-    def angularAcceleration(self):
+    def angularAcceleration(self) -> float:
         return self._angularAccelleration
 
     @property
-    def selected(self):
+    def selected(self) -> bool:
         return self._selected
 
     @property
-    def centerOfMass(self):
+    def centerOfMass(self) -> Vector:
         return self._centerOfMass
     
     @centerOfMass.setter
     def centerOfMass(self, value):
         self._centerOfMass = value
+    
+    @property
+    def boundingBox(self) -> BoundingBox:
+        return self._boundingBox

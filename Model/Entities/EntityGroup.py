@@ -14,7 +14,7 @@ class EntityGroup():
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
     
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Entity:
         return self._entities[index]
 
     def __len__(self):
@@ -27,7 +27,7 @@ class EntityGroup():
         self._entities.append(entity)
     
     def manageClick(self, point:Vector):
-        from ..Collisions import CollisionManager
+        from Model.CollisionDetector import CollisionManager
         entitySelected = False
         for entity in self._entities:
             result = CollisionManager.isPointInsideEntity(point, entity)
@@ -43,21 +43,6 @@ class EntityGroup():
             
     def move(self, deltaTime:float):
         tasks = [entity.move(deltaTime) for entity in self._entities]
-        Utils.runAsyncTasks(self._loop, tasks)
-    
-    def manageCollisions(self):
-        from ..CollisionDetector import CollisionManager
-        numberOfEntities = len(self._entities)
-        #migliorini
-        tasks = []
-        for i in range(numberOfEntities):
-            
-            if isinstance(self._entities[i], Polygon):
-                self._entities[i].setContactPoint(None)
-
-            for j in range(i+1, numberOfEntities):
-                tasks.append(CollisionManager.manageCollisionFrom(self._entities[i], self._entities[j]))
-
         Utils.runAsyncTasks(self._loop, tasks)
     
     @property
