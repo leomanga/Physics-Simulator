@@ -1,6 +1,6 @@
 from ..Materials import Solid
 from ..Vector import Vector, VectorZero
-
+from Model.Entities.BoundingBox import BoundingBox
 from icecream import ic
 
 class Entity():
@@ -24,6 +24,7 @@ class Entity():
         self._inertia: float = None
 
         self._contactPoint: Vector = None
+        self._boundingBox: BoundingBox = BoundingBox()
 
         self._selected: bool = False
             
@@ -45,6 +46,9 @@ class Entity():
     def setContactPoint(self, contactPoint:Vector):
         self._contactPoint = contactPoint   
     
+    def addForce(self, force: Vector):
+        self._acceleration += force / self._mass
+
     def stopMotion(self):
         self._acceleration = VectorZero()
         self._velocity = VectorZero()
@@ -56,12 +60,12 @@ class Entity():
         if self._contactPoint is not None:
             view.drawPoint(tuple(self._contactPoint))
 
-    def _updateMotions(self, deltaTime: float, deltaSpace: Vector, deltaAngle: Vector):
-        self._angularVelocity = self._angularVelocity + (self._angularAccelleration * deltaTime)
-        self._rotation = self._rotation + deltaAngle
+    def _updateMotions(self, deltaTime: float):
+        self._velocity += self._acceleration * deltaTime
+        self._centerOfMass += self._velocity * deltaTime
 
-        self._velocity = self._velocity + (self._acceleration * deltaTime)
-        self._centerOfMass = self._centerOfMass + deltaSpace
+        self._angularVelocity += (self._angularAccelleration * deltaTime)
+        self._rotation += (self._angularVelocity * deltaTime)
     
     def _initMass(self):
         self._mass = self._area * self._material.density 

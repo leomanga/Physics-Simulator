@@ -20,9 +20,8 @@ class Ball(Entity):
         self._initInertia()
 
     async def move(self, deltaTime:float):
-            deltaSpace = self._velocity* deltaTime
-            deltaAngle = self._angularVelocity* deltaTime
-            self._updateMotions(deltaTime, deltaSpace, deltaAngle)
+        self._updateMotions(deltaTime)
+        self._boundingBox.setBallBox(self._centerOfMass, self.radius)
 
     def setPosition(self, position:tuple):
         self._centerOfMass = Vector(position)
@@ -34,6 +33,7 @@ class Ball(Entity):
         vector = self._centerOfMass + Vector((self._radius, 0))
         directionVector = Utils.rotate(vector, self._centerOfMass, self._rotation)
         view.drawLine(self._centerOfMass, directionVector, (0,0,0))
+        view.drawBoundingBox(self._boundingBox)
 
         super().printItself(view)
             

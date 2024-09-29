@@ -21,13 +21,17 @@ class Polygon(Entity, ABC):
         self._sidesLength: list[float] = []
         
     async def move(self, deltaTime:float):
+        self._updateMotions(deltaTime)
+
         deltaSpace = self._velocity * deltaTime
         deltaAngle = self._angularVelocity * deltaTime
-        self._updateMotions(deltaTime, deltaSpace, deltaAngle)
+
         for i in range(self._numberOfSides):
             movedVertex = self._vertexes[i] + deltaSpace
             self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, deltaAngle)
-            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), deltaAngle)     
+            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), deltaAngle) 
+
+        self._boundingBox.setPolygonBox(self._vertexes)    
 
     def printItself(self, view):
         listVertexes=[tuple(vertex) for vertex in self._vertexes]
@@ -39,6 +43,8 @@ class Polygon(Entity, ABC):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
             view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
             view.drawText(i, tuple(self.vertexes[i]))
+
+        view.drawBoundingBox(self._boundingBox)
 
         super().printItself(view)
     

@@ -1,6 +1,7 @@
 import pygame
 from datetime import datetime
 
+from Model.Entities.BoundingBox import BoundingBox
 class View():
     #events list
     QUIT = pygame.QUIT
@@ -8,6 +9,7 @@ class View():
 
     clickedColor = (177, 177, 177)
     baseColor = (255, 0, 0)
+    debugColor = (0,0,255)
 
     def __init__(self, campo, screenColor:tuple=(255,255,255)):
         self._campo = campo
@@ -33,6 +35,15 @@ class View():
     
     def drawPolygon(self, vectorList: list[tuple], color:tuple=baseColor):
         pygame.draw.polygon(self._screen, color, vectorList)
+    
+    def drawBoundingBox(self, boundingBox: BoundingBox, color:tuple=debugColor):
+        topRight = (boundingBox.topLeft[0], boundingBox.bottomRight[1])
+        bottomLeft = (boundingBox.bottomRight[0], boundingBox.topLeft[1])
+        
+        self.drawLine(topRight, tuple(boundingBox.topLeft), color)
+        self.drawLine(tuple(boundingBox.topLeft), bottomLeft, color)
+        self.drawLine(bottomLeft, tuple(boundingBox.bottomRight), color)
+        self.drawLine(tuple(boundingBox.bottomRight), topRight, color)
     
     def drawLine(self, point1:tuple, point2:tuple, color:tuple=baseColor):
         #print(point2)

@@ -16,6 +16,9 @@ class Vector():
     def __repr__(self) -> str:
         return f"Vector({self._vector})"
     
+    def __str__(self) -> str:
+        return f"{(round(self._vector[0],0), round(self._vector[0],0))}"
+    
     def __getitem__(self, index:int) -> int | float:
         """
         . vector[index]
@@ -33,7 +36,6 @@ class Vector():
         . len(vector)
         """
         return self._dimension
-
 
     def __add__(self, other:"Vector") -> "Vector":
         """
