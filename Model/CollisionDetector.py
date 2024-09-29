@@ -59,7 +59,7 @@ class CollisionManager():
         if not CollisionManager._isBallCollidingBorder(ball, size):
             return 
         
-        ball.stopMotion()
+        #ball.stopMotion()
 
     @staticmethod
     def _isVertexInsideBorder(vertex: Vector, size: tuple):
@@ -107,7 +107,7 @@ class CollisionManager():
         
         if info is not None:
             CollisionResolver.positionalCorrection(entity1, entity2, info)
-            #CollisionResolver.manageImpulse(entity1, entity2, info)
+            CollisionResolver.manageImpulse(entity1, entity2, info)
         
     @staticmethod
     def _boundingBoxCollides(entity1: Entity, entity2: Entity):
@@ -140,8 +140,8 @@ class CollisionManager():
         
         contactInfo._penetrationNormal = -(contactInfo._penetrationNormal) #fare setter
 
-        pol1.stopMotion()
-        pol2.stopMotion()
+        #pol1.stopMotion()
+        #pol2.stopMotion()
 
         pol1.setContactPoint(contactInfo.penetrationPoint)
         pol2.setContactPoint(contactInfo.penetrationPoint)
@@ -157,8 +157,8 @@ class CollisionManager():
         if contactInfo is None:
             return
         
-        pol.stopMotion()
-        ball.stopMotion()
+        #pol.stopMotion()
+        #ball.stopMotion()
 
         pol.setContactPoint(contactInfo.penetrationPoint)
         return contactInfo
@@ -174,8 +174,8 @@ class CollisionManager():
         depth = maxDistance - direction.norm
         penetrationPoint = direction.normalized * (ball2.radius - depth) + ball2.position
         
-        ball1.stopMotion()
-        ball2.stopMotion()
+        #ball1.stopMotion()
+        #ball2.stopMotion()
         ball1._contactPoint = penetrationPoint
         
         return ContactInfo(penetrationPoint, direction, depth)

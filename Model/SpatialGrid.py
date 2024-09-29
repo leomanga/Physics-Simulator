@@ -4,6 +4,7 @@ from icecream import ic
 
 ic.disable()
 class SpatialGrid():
+    pass
     def __init__(self, size: tuple, nCellsAxis: tuple, entityGroup: EntityGroup):
         self._size = size
 
