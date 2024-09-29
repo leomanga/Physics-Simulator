@@ -22,11 +22,16 @@ class CollisionResolver():
         
     @staticmethod
     def positionalCorrection(entity1: Entity, entity2: Entity, info: ContactInfo):
-        correction = 0.00001 * (entity1.mass * entity2.mass) / (entity1.mass + entity2.mass)
+        correction = 0.1 * (entity1.mass * entity2.mass) / (entity1.mass + entity2.mass)
         amountToCorrect = info.penetrationDepth / correction
         correctionVector = info.penetrationNormal * amountToCorrect
         movementOne = (correctionVector / entity1.mass)
         movementTwo = -(correctionVector / entity2.mass)
         CollisionResolver.move(entity1, movementOne)
         CollisionResolver.move(entity2, movementTwo)
+        
+    @staticmethod
+    def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
+        
+        
  
