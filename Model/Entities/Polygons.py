@@ -68,9 +68,8 @@ class Polygon(Entity, ABC):
         self._initInertia()
 
     def _calculateNormals(self):
-        length = len(self._vertexes)
-        for i in range(length):
-            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % length]
+        for i in range(self.numberOfSides):
+            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % self.numberOfSides]
             directionVersor = -direction.normalized
             normalX = directionVersor[1]
             normalY = - directionVersor[0]

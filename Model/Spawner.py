@@ -9,6 +9,7 @@ class Spawner:
     
     def spawnEntities(self):
         solidGroup = SolidGroup()
+        #testing
         shape = [(68, 80),(32, 67) , (29, 17), (55, 33)]
         irregolare = IrregularPolygon(shape, (400, 400), 0, solidGroup.wood)
         irregolare.setVelocity((12, 12))
@@ -34,9 +35,8 @@ class Spawner:
         quadrato4 = RegularPolygon(59, (400,90), 0, 4, solidGroup.wood)
         quadrato4.setVelocity((-10,0))
         
-        self._campo.addEntity(quadrato3)
+        #self._campo.addEntity(quadrato3)
         self._campo.addEntity(quadrato4)
-        
         self._campo.addEntity(quadrato)
 
         quadrato2 = RegularPolygon(40, (650,200), 45, 4, solidGroup.wood)
@@ -60,7 +60,7 @@ class Spawner:
 
         self._campo.addEntity(palla2)
 
-        """        for row in range(10):  # Numero di righe della piramide
+        """ for row in range(10):  # Numero di righe della piramide
                     num_poligoni = 10 - row  # Numero di poligoni per riga, decrescente
                     y_pos = self._campo.size[1] - row * 40  # Altezza dei poligoni, aumenta con le righe
 

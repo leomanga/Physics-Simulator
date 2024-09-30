@@ -3,6 +3,7 @@ from Model.Utils import Utils
 from icecream import ic
 import time
 class SpatialGrid():
+    pass
     def __init__(self, size: tuple, nCellsAxis: tuple, entityGroup: EntityGroup):
         self._size = size
 

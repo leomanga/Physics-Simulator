@@ -95,9 +95,17 @@ class Entity():
     def velocity(self) -> Vector:
         return self._velocity
     
+    @velocity.setter
+    def velocity(self, new):
+        self._velocity = new
+    
     @property
     def angularVelocity(self) -> float:
         return self._angularVelocity
+    
+    @angularVelocity.setter
+    def angularVelocity(self, new):
+        self._angularVelocity = new
 
     @property
     def acceleration(self) -> Vector:
