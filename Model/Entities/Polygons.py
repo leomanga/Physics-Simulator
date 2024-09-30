@@ -38,7 +38,7 @@ class Polygon(Entity, ABC):
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawPolygon(listVertexes, color)  
 
-        length = len(self._normals)
+        length = self.numberOfSides
         for i in range(length):
             startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
             view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
@@ -61,9 +61,8 @@ class Polygon(Entity, ABC):
         self._initInertia()
 
     def _calculateNormals(self):
-        length = len(self._vertexes)
-        for i in range(length):
-            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % length]
+        for i in range(self.numberOfSides):
+            direction : Vector = self.vertexes[i] - self.vertexes[(i + 1) % self.numberOfSides]
             directionVersor = -direction.normalized
             normalX = directionVersor[1]
             normalY = - directionVersor[0]

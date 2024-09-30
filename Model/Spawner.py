@@ -9,7 +9,8 @@ class Spawner:
     
     def spawnEntities(self):
         solidGroup = SolidGroup()
-        shape = [(68, 80),(32, 67) , (29, 17), (55, 33)]
+        #testing
+        """shape = [(68, 80),(32, 67) , (29, 17), (55, 33)]
         irregolare = IrregularPolygon(shape, (400, 400), 0, solidGroup.wood)
         irregolare.setVelocity((12, 12))
 
@@ -60,4 +61,16 @@ class Spawner:
         palla2.setVelocity((65,-40))
         palla2.setAcceleration((0,+9.81))
 
-        self._campo.addEntity(palla2)
+        self._campo.addEntity(palla2)"""
+        
+        quadrato = quadrato = RegularPolygon(123, (110,110), 45, 5, solidGroup.wood)
+        quadrato.setVelocity((10, 0))
+        quadrato.setAcceleration((10, 0))
+        quadrato.setAngularVelocity(5)
+        
+        quadrato3 = RegularPolygon(70, (300,110), 0, 5,solidGroup.wood)
+        quadrato3.setVelocity((-10,0))
+        
+        self._campo.addEntity(quadrato)
+        self._campo.addEntity(quadrato3)
+        
