@@ -13,7 +13,7 @@ class Campo():
 
         self._composition : Fluid = composition
         self._size = size
-        self._spatialGrid = SpatialGrid(size, (5,5), self._entities)
+        self._spatialGrid = SpatialGrid(size, (40,40), self._entities)
         self._lastTime = None
 
     def move(self):
@@ -27,19 +27,26 @@ class Campo():
 
         self._lastTime = newTime
         self._entities.move(deltaTime.total_seconds())
-        self._spatialGrid._resetGrids()
-        self._spatialGrid._populateGrids()
+        self._spatialGrid.resetGrids()
+        self._spatialGrid.populateGrids()
         self._manageCollisions()
-        #self._entities.manageCollisions()
 
         self._manageBorderCollision()
 
     def _manageCollisions(self):
-        for entities in self._spatialGrid._grids:
-            for i in range(len(entities)):
-                for j in range(i+1, len(entities)):
-                    CollisionManager.manageCollisionFrom(entities[i], entities[j])
+        for i, entity in enumerate(self._entities):
+            for neighbour in self._spatialGrid.getNeighbourEntities(i):
+                CollisionManager.manageCollisionFrom(entity, neighbour)
 
+            self._spatialGrid.clearEntity(i)
+
+    def _manageCollisions2(self):
+        numberOfEntities = len(self._entities)
+        for i in range(numberOfEntities):
+
+            for j in range(i+1, numberOfEntities):
+                CollisionManager.manageCollisionFrom(self._entities[i], self._entities[j])
+    
     def _manageBorderCollision(self):
         CollisionManager.manageElementsVsBorderCollisions(self._entities, self._size)
 

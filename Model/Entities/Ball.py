@@ -19,6 +19,12 @@ class Ball(Entity):
         self._initMass()
         self._initInertia()
 
+    def __repr__(self):
+        return f"Ball, {super().__repr__()}"  
+     
+    def __str__(self):
+        return f"Ball, {super().__str__()}"
+    
     async def move(self, deltaTime:float):
         self._updateMotions(deltaTime)
         self._boundingBox.setBallBox(self._centerOfMass, self.radius)
@@ -26,16 +32,18 @@ class Ball(Entity):
     def setPosition(self, position:tuple):
         self._centerOfMass = Vector(position)
 
-    def printItself(self, view):
+    def printItself(self, view, debug = False):
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawCircle(tuple(self._centerOfMass), self._radius, color)   
 
         vector = self._centerOfMass + Vector((self._radius, 0))
         directionVector = Utils.rotate(vector, self._centerOfMass, self._rotation)
         view.drawLine(self._centerOfMass, directionVector, (0,0,0))
-        view.drawBoundingBox(self._boundingBox)
+        
+        if debug:
+            view.drawBoundingBox(self._boundingBox)
 
-        super().printItself(view)
+        super().printItself(view, debug)
             
     def _initArea(self):
         self._area = math.pi * self._radius**2

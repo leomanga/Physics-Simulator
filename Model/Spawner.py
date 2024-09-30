@@ -37,8 +37,6 @@ class Spawner:
         self._campo.addEntity(quadrato3)
         self._campo.addEntity(quadrato4)
         
-        
-
         self._campo.addEntity(quadrato)
 
         quadrato2 = RegularPolygon(40, (650,200), 45, 4, solidGroup.wood)
@@ -61,3 +59,15 @@ class Spawner:
         palla2.setAcceleration((0,+9.81))
 
         self._campo.addEntity(palla2)
+
+        """        for row in range(10):  # Numero di righe della piramide
+                    num_poligoni = 10 - row  # Numero di poligoni per riga, decrescente
+                    y_pos = self._campo.size[1] - row * 40  # Altezza dei poligoni, aumenta con le righe
+
+                    for col in range(num_poligoni):
+                        # Centriamo la riga rispetto alla base
+                        x_pos = self._campo.size[0] / 2 - (num_poligoni / 2 * 40) + col * 40
+                        pol = RegularPolygon(10, (x_pos, y_pos), 2, 3, solidGroup.wood)
+                        pol.setAcceleration((1, 1))
+                        pol.setVelocity((20, -2))
+                        self._campo.addEntity(pol)"""

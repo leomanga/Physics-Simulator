@@ -19,6 +19,12 @@ class Polygon(Entity, ABC):
         self._normals: list[Vector] = []
         
         self._sidesLength: list[float] = []
+    
+    def __repr__(self):
+        return f"Polygon, {super().__repr__()}"  
+     
+    def __str__(self):
+        return f"Polygon, {super().__str__()}"
         
     async def move(self, deltaTime:float):
         self._updateMotions(deltaTime)
@@ -33,20 +39,21 @@ class Polygon(Entity, ABC):
 
         self._boundingBox.setPolygonBox(self._vertexes)    
 
-    def printItself(self, view):
+    def printItself(self, view, debug = False):
         listVertexes=[tuple(vertex) for vertex in self._vertexes]
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawPolygon(listVertexes, color)  
 
-        length = len(self._normals)
-        for i in range(length):
-            startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
-            view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
-            view.drawText(i, tuple(self.vertexes[i]))
+        if debug:
+            length = len(self._normals)
+            for i in range(length):
+                startingPoint = self._calculateMidPoint(self.vertexes[i], self.vertexes[(i + 1) % length])            
+                view.drawLine(tuple(startingPoint), tuple((startingPoint + self._normals[i]*15)))
+                view.drawText(i, tuple(self.vertexes[i]))
 
-        view.drawBoundingBox(self._boundingBox)
+                view.drawBoundingBox(self._boundingBox)
 
-        super().printItself(view)
+        super().printItself(view, debug)
     
     def _initProperties(self):
         if len(self._vertexes) == 0:
@@ -115,6 +122,12 @@ class IrregularPolygon(Polygon):
         
         self._initVertexes(shape)
         self._initProperties()
+    
+    def __repr__(self):
+        return f"Irregular {super().__repr__()}"  
+     
+    def __str__(self):
+        return f"Irregular {super().__str__()}"
 
     def _initVertexes(self, shape):
         centroid = self._getCentroid(shape)
@@ -151,6 +164,12 @@ class RegularPolygon(Polygon):
         
         self._initVertexes()
         self._initProperties()
+    
+    def __repr__(self):
+        return f"Regular {super().__repr__()}"  
+     
+    def __str__(self):
+        return f"Regular {super().__str__()}"
     
     def _initVertexes(self):            
         angles = np.linspace(math.radians(self._rotation), 2*np.pi + math.radians(self._rotation), self._numberOfSides, endpoint=False)

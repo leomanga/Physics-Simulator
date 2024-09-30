@@ -3,6 +3,7 @@ from datetime import datetime
 from icecream import ic
 
 from Model.Entities.BoundingBox import BoundingBox
+
 class View():
     #events list
     QUIT = pygame.QUIT
@@ -60,11 +61,14 @@ class View():
     def update(self):
         pygame.display.flip()
 
-    def draw(self):
+    def draw(self, debug = False):
         self._fillScreen(self._screenColor)
         for e in self._campo.entities:
-            e.printItself(self)
-        self._drawGrids()
+            e.printItself(self, debug)
+
+        if debug:
+            self._drawGrids()
+            
         self._printFps()    
 
     def _drawGrids(self):
@@ -79,18 +83,6 @@ class View():
 
         for j in range(nRows):
             pygame.draw.line(self._screen, (23,234,243), (0, rowLength * j), (self._campo._size[0], rowLength*j))
-    
-        ic("VIEW->", len(self._campo.spatialGrid.grids))
-        for i in range(len(self._campo.spatialGrid.grids)):
-            nEntities = len(self._campo.spatialGrid.grids[i])
-            
-            xIndex = int(i%(nCols))
-            yIndex = int(i/(nCols))
-            coord = (xIndex * colLength, yIndex * rowLength)
-            #self.drawText(f"{nEntities}", coord)
-            #ic("VIEW->", coord, i, str(nEntities))
-           
-
             
     def setScreenColor(self, color:tuple):
         # può fare comodo per cambiare colore dello sfondo in base al materiale

@@ -63,3 +63,6 @@ class Utils():
 
     def calculateDistance(vector1:np.ndarray, vector2:np.ndarray):
         return np.linalg.norm(vector1 - vector2)      
+
+    def clampIndex(index: int, minIndexAccepted: int, maxIndexAccepted:int) -> int:
+        return max(min(index, maxIndexAccepted), minIndexAccepted)

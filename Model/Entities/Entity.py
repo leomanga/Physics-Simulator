@@ -4,10 +4,10 @@ from Model.Entities.BoundingBox import BoundingBox
 from icecream import ic
 
 class Entity():
-    id: int = 0
+    idCounter: int = 0
     def __init__(self, rotation, material):
-        self._id = Entity.id
-        Entity.id += 1
+        self._id = Entity.idCounter
+        Entity.idCounter += 1
 
         self._centerOfMass: Vector = None
         self._velocity: Vector = Vector((0,0))
@@ -27,6 +27,12 @@ class Entity():
         self._boundingBox: BoundingBox = BoundingBox()
 
         self._selected: bool = False
+    
+    def __repr__(self) -> str:
+        return f"id:{self._id}, center of mass:{self._centerOfMass}"
+
+    def __str__(self) -> str:
+        return f"id:{self._id}"
             
     def clicked(self):
         self._selected = not self._selected
@@ -55,10 +61,11 @@ class Entity():
         self._angularAccelleration = 0
         self._angularVelocity = 0
     
-    def printItself(self, view):
-        view.drawText(round(self._mass), tuple(self._centerOfMass))
-        if self._contactPoint is not None:
-            view.drawPoint(tuple(self._contactPoint))
+    def printItself(self, view, debug = False):
+        if debug:
+            view.drawText(round(self._mass), tuple(self._centerOfMass))
+            if self._contactPoint is not None:
+                view.drawPoint(tuple(self._contactPoint))
 
     def _updateMotions(self, deltaTime: float):
         self._velocity += self._acceleration * deltaTime
@@ -75,6 +82,10 @@ class Entity():
 
     def _calculateArea(self):
        raise NotImplementedError("This method should be overridden by subclass") 
+
+    @property
+    def id(self) -> int:
+        return self._id
 
     @property
     def mass(self) -> float:

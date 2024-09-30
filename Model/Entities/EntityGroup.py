@@ -17,6 +17,9 @@ class EntityGroup():
     def __getitem__(self, index) -> Entity:
         return self._entities[index]
 
+    def __iter__(self):
+        return iter(self._entities)
+
     def __len__(self):
         return len(self._entities)
 
