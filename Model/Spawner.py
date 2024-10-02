@@ -10,7 +10,7 @@ class Spawner:
     def spawnEntities(self):
         solidGroup = SolidGroup()
 
-        q1 = Ball((200,200), 29, solidGroup.wood)
+        q1 = RegularPolygon(50, (200,200), 45, 4, solidGroup.wood)
         q1.setVelocity((50,0))
         self._campo.addEntity(q1)
 
