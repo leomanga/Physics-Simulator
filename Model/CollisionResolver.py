@@ -15,53 +15,71 @@ from .Vector import Vector
 #still testing
 
 class CollisionResolver():
-    @staticmethod
+    """@staticmethod
     def move(entity: Entity, deltaVector: Vector):
         entity.centerOfMass += deltaVector
         if isinstance(entity, Polygon):
             for i in entity.vertexes:
-                i += deltaVector
+                i += deltaVector"""
         
+    """    @staticmethod
+        def positionalCorrection(entity1: Entity, entity2: Entity, info: ContactInfo):
+            correction = 0.7 * (entity1.mass * entity2.mass) / (entity1.mass + entity2.mass)
+            amountToCorrect = -info.penetrationDepth / correction
+            correctionVector = info.penetrationNormal * amountToCorrect
+            movementOne = (correctionVector / entity1.mass)
+            movementTwo = -(correctionVector / entity2.mass)
+            CollisionResolver.move(entity1, movementOne)
+            CollisionResolver.move(entity2, movementTwo)"""
+    
     @staticmethod
-    def positionalCorrection(entity1: Entity, entity2: Entity, info: ContactInfo):
-        correction = 0.7 * (entity1.mass * entity2.mass) / (entity1.mass + entity2.mass)
-        amountToCorrect = -info.penetrationDepth / correction
-        correctionVector = info.penetrationNormal * amountToCorrect
-        movementOne = (correctionVector / entity1.mass)
-        movementTwo = -(correctionVector / entity2.mass)
-        CollisionResolver.move(entity1, movementOne)
-        CollisionResolver.move(entity2, movementTwo)
-        
+    def _correctPosition(entity1: Entity, entity2: Entity, info: ContactInfo):
+        push = info.penetrationNormal * info.penetrationDepth / 2
+        entity2.translate(push)
+        entity1.translate(-push)
+
     @staticmethod
-    #debug test
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
-        penetrationToCentroidA = info.penetrationPoint - entity1.centerOfMass
-        penetrationToCentroidB = info.penetrationPoint - entity2.centerOfMass
-        angularVelocityToA = Vector((-(entity1.angularVelocity*penetrationToCentroidA[1]), entity1.angularVelocity*penetrationToCentroidA[0]))
-        angularVelocityToB = Vector((-(entity2.angularVelocity*penetrationToCentroidB[1]), entity2.angularVelocity*penetrationToCentroidB[0]))
-        #print(entity1.velocity, entity1.angularVelocity)
-        relativeVelocityA = entity1.velocity + angularVelocityToA
-        relativeVelocityB = entity2.velocity + angularVelocityToB
-        #print(relativeVelocityA, relativeVelocityB)
-        #print(info.penetrationNormal)
-        relativeVelocityNormal = (relativeVelocityA - relativeVelocityB)*info.penetrationNormal
-        #print(relativeVelocityNormal)
-        #debug tests
-        if relativeVelocityNormal > 0:
+        CollisionResolver._correctPosition(entity1, entity2, info)
+
+        penetrationCentroidToEntity1: Vector = info.penetrationPoint - entity1.centerOfMass
+        penetrationCentroidToEntity2: Vector = info.penetrationPoint - entity2.centerOfMass
+
+        normalizedPenetrationPoint1 = Vector((-penetrationCentroidToEntity1[1], penetrationCentroidToEntity1[0])) # Rotates the vector 90 degrees counterclockwise
+        normalizedPenetrationPoint2 = Vector((-penetrationCentroidToEntity2[1], penetrationCentroidToEntity2[0])) # Rotates the vector 90 degrees counterclockwise
+
+        angularVelocityPenetrationCentroidEntity1 = normalizedPenetrationPoint1 * entity2.angularVelocity
+        angularVelocityPenetrationCentroidEntity2 = normalizedPenetrationPoint2 * entity1.angularVelocity
+
+        velocityEntity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1 # relative velocity of entity2 from entity1
+        velocityEntity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
+
+        relativeVelocity = velocityEntity1 - velocityEntity2 # relative velocity of entity2 from entity1
+        relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
+
+        if relativeVelocityAlongNormal > 0: # chech if the second entity is faster than the first
             return
-        e = 0.5 #add bounciness
-        print(penetrationToCentroidA.norm)
-        print(penetrationToCentroidB.norm)
-        pToCentroidCrossNormalA = penetrationToCentroidA.cross(info.penetrationNormal)
-        pToCentroidCrossNormalB = penetrationToCentroidB.cross(info.penetrationNormal)
-        invMassSum = (entity1.mass + entity2.mass) / (entity1.mass * entity2.mass)
-        crossNsum = pToCentroidCrossNormalA * pToCentroidCrossNormalA / entity1._inertia + pToCentroidCrossNormalB * pToCentroidCrossNormalB / entity2._inertia
-        j = (-(1+e)*relativeVelocityNormal) / (invMassSum + crossNsum)
-        impulseVector = info.penetrationNormal * j
-        #print (impulseVector)
-        entity1.velocity -= impulseVector / entity1.mass
-        entity2.velocity -= impulseVector / entity2.mass
-        entity1.angularVelocity -= pToCentroidCrossNormalA * j / entity1._inertia #add property
-        entity2.angularVelocity += pToCentroidCrossNormalB * j / entity2._inertia
         
-        
+        restitutionProduct = entity1.material.restituitionCoeff * entity2.material.restituitionCoeff
+        restitutionSum = entity1.material.restituitionCoeff +  entity2.material.restituitionCoeff
+
+        bounciness = 2 * restitutionProduct / restitutionSum
+
+        pToCentroidCrossNormal1 = penetrationCentroidToEntity1 @ info.penetrationNormal
+        pToCentroidCrossNormal2 = penetrationCentroidToEntity2 @ info.penetrationNormal
+
+        crossNSum1 = pToCentroidCrossNormal1 * pToCentroidCrossNormal1 / entity1.inertia
+        crossNSum2 = pToCentroidCrossNormal2 * pToCentroidCrossNormal2 / entity2.inertia
+        crossNSum = crossNSum1 + crossNSum2
+
+        impulse = -(1+bounciness) * relativeVelocityAlongNormal / (1/entity1.mass + 1/entity2.mass + crossNSum)
+        impulseVector = info.penetrationNormal * impulse / 2
+
+        impulseVectorEntity1 = -impulseVector / entity1.mass
+        impulseVectorEntity2 = impulseVector / entity2.mass
+
+        entity1.setVelocity(entity1.velocity + impulseVectorEntity1)
+        entity2.setVelocity(entity2.velocity + impulseVectorEntity2)
+
+        entity1.setAngularVelocity(entity1.angularVelocity - pToCentroidCrossNormal1 * impulse / entity1.inertia)
+        entity2.setAngularVelocity(entity2.angularVelocity + pToCentroidCrossNormal2 * impulse / entity2.inertia)

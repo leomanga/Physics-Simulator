@@ -29,9 +29,6 @@ class Ball(Entity):
         self._updateMotions(deltaTime)
         self._boundingBox.setBallBox(self._centerOfMass, self.radius)
 
-    def setPosition(self, position:tuple):
-        self._centerOfMass = Vector(position)
-
     def printItself(self, view, debug = False):
         color = view.baseColor if self._selected == False else view.clickedColor
         view.drawCircle(tuple(self._centerOfMass), self._radius, color)   

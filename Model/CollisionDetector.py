@@ -17,6 +17,31 @@ from View.View import View
 
 
 class CollisionManager():
+
+    @staticmethod
+    def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
+        info = None
+        if not CollisionManager._boundingBoxCollides(entity1, entity2):
+            return
+        
+        if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
+            info = CollisionManager._manageCollisionPolygonVSPolygon(entity1, entity2)
+
+        elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
+            info = CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
+            entity1, entity2 = entity2, entity1
+        
+        elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
+            info = CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
+    
+        else:
+            info = CollisionManager._manageCollisionBallVSBall(entity1, entity2)
+        
+        if info is not None:
+            #entity1.stopMotion()                        #entity2.stopMotion()
+            #CollisionResolver.positionalCorrection(entity1, entity2, info)
+            CollisionResolver.manageImpulse(entity1, entity2, info)
+
     @staticmethod
     def isPointInsideEntity(point:Vector, entity:"Entity") -> bool:
         if isinstance(entity, Ball):
@@ -59,14 +84,13 @@ class CollisionManager():
                     i +=delta
                 return
             
-
     @staticmethod
     def _manageBallVSBorder(ball: Ball, size: tuple):
         if not CollisionManager._isBallCollidingBorder(ball, size):
             return 
         
-        #ball.stopMotion()
-
+        ball.setVelocity(ball.velocity * -1)
+        
     @staticmethod
     def _isVertexInsideBorder(vertex: Vector, size: tuple):
         if vertex[0] < 0: # left
@@ -92,30 +116,6 @@ class CollisionManager():
             return True
         
         return False
-
-    @staticmethod
-    def manageCollisionFrom(entity1:"Entity", entity2:"Entity"):
-        info = None
-        if not CollisionManager._boundingBoxCollides(entity1, entity2):
-            return
-        
-        if isinstance(entity1, Polygon) and isinstance(entity2, Polygon):
-            info = CollisionManager._manageCollisionPolygonVSPolygon(entity1, entity2)
-
-        elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
-            info = CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
-        
-        elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
-            info = CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
-            entity1, entity2 = entity2, entity1
-        else:
-            info = CollisionManager._manageCollisionBallVSBall(entity1, entity2)
-        
-        if info is not None:
-            #entity1.stopMotion()
-            #entity2.stopMotion()
-            #CollisionResolver.positionalCorrection(entity1, entity2, info)
-            CollisionResolver.manageImpulse(entity1, entity2, info)
         
     @staticmethod
     def _boundingBoxCollides(entity1: Entity, entity2: Entity):
@@ -140,17 +140,13 @@ class CollisionManager():
         contactInfo: ContactInfo = contactInfo1
 
         if contactInfo1.penetrationDepth < contactInfo2.penetrationDepth:
-            contactInfo1._penetrationDepth = -(contactInfo1._penetrationDepth)
+            #contactInfo1._penetrationDepth = -(contactInfo1._penetrationDepth)
             contactInfo = contactInfo1
             
         else:
             contactInfo = contactInfo2
-            contactInfo._penetrationNormal*=-1 #fare setter
+            contactInfo._penetrationNormal*=-1 # TODO: fare setter
         
-
-        #pol1.stopMotion()
-        #pol2.stopMotion()
-
         pol1.setContactPoint(contactInfo.penetrationPoint)
         pol2.setContactPoint(contactInfo.penetrationPoint)
         return contactInfo
@@ -165,13 +161,9 @@ class CollisionManager():
         if contactInfo is None:
             return
         
-        #pol.stopMotion()
-        #ball.stopMotion()
-
         pol.setContactPoint(contactInfo.penetrationPoint)
         return contactInfo
 
-    
     @staticmethod
     def _manageCollisionBallVSBall(ball1: "Ball", ball2: "Ball"):
         maxDistance = ball1.radius + ball2.radius
@@ -182,13 +174,9 @@ class CollisionManager():
         depth = maxDistance - direction.norm
         penetrationPoint = direction.normalized * (ball2.radius - depth) + ball2.position
         
-        #ball1.stopMotion()
-        #ball2.stopMotion()
         ball1._contactPoint = penetrationPoint
         
-        return ContactInfo(penetrationPoint, direction, depth)
-
-
+        return ContactInfo(penetrationPoint, -direction.normalized, depth)
 
     @staticmethod
     def _getContactInfoPolVSPol(pol1:"Polygon", pol2:"Polygon") -> Union["ContactInfo", None]:
@@ -227,18 +215,18 @@ class CollisionManager():
     def _findSupportPoint(pol1, pol2, vertexIndex) -> tuple:
         maxDepth = CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[0])
         maxSupportPoint = pol2.vertexes[0]
-        maxNormal = pol2.normals[0]
+        maxNormal = pol1.normals[0]
         for i in range(1, pol2.numberOfSides):
             depth=CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[i])
             if depth > maxDepth:
                 maxDepth = depth
                 maxSupportPoint = pol2.vertexes[i]
-                maxNormal = pol2.normals[i]
+                maxNormal = pol1.normals[i]
         return maxDepth, maxSupportPoint, maxNormal
 
     @staticmethod
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
-        return ((pol2Vertex - pol1Vertex) * -1) * pol1Normal
+        return (pol1Vertex - pol2Vertex) * pol1Normal
     
     @staticmethod
     def _manageCircleVsPolygonEdges(pol : "Polygon", ball : "Ball") -> Union["ContactInfo", None]:
@@ -277,7 +265,6 @@ class CollisionManager():
                 offset = vertex-ball.position
 
                 penetrationDepth = ball.radius - offset.norm
-                
                 
                 contact = ContactInfo(penetrationPoint, penetrationNormal, penetrationDepth)
                 CollisionResolver.manageImpulse(ball, pol, contact)

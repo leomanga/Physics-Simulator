@@ -33,6 +33,12 @@ class Entity():
 
     def __str__(self) -> str:
         return f"id:{self._id}"
+
+    def translate(self, translation: Vector):
+        self._centerOfMass += translation
+    
+    def setCenterOfMass(self, newCenterOfMass: Vector):
+        self._centerOfMass = newCenterOfMass
             
     def clicked(self):
         self._selected = not self._selected
@@ -84,6 +90,10 @@ class Entity():
        raise NotImplementedError("This method should be overridden by subclass") 
 
     @property
+    def material(self) -> Solid:
+        return self._material
+    
+    @property
     def id(self) -> int:
         return self._id
 
@@ -130,3 +140,7 @@ class Entity():
     @property
     def boundingBox(self) -> BoundingBox:
         return self._boundingBox
+
+    @property
+    def inertia(self) -> float:
+        return self._inertia

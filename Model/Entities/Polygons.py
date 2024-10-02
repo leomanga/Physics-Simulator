@@ -25,7 +25,18 @@ class Polygon(Entity, ABC):
      
     def __str__(self):
         return f"Polygon, {super().__str__()}"
-        
+    
+    def translate(self, translation: Vector):
+        super().translate(translation)
+        for i in range(self._numberOfSides):
+            self._vertexes[i] += translation
+    
+    def setCenterOfMass(self, newCenterOfMass: Vector):
+        delta = newCenterOfMass - self._centerOfMass
+        super().setCenterOfMass(newCenterOfMass)
+        for i in range(self._numberOfSides):
+            self._vertexes[i] += delta
+
     async def move(self, deltaTime:float):
         self._updateMotions(deltaTime)
 
@@ -54,7 +65,7 @@ class Polygon(Entity, ABC):
                 view.drawBoundingBox(self._boundingBox)
 
         super().printItself(view, debug)
-    
+
     def _initProperties(self):
         if len(self._vertexes) == 0:
                 raise NotImplementedError(

@@ -17,7 +17,7 @@ class Vector():
         return f"Vector({self._vector})"
     
     def __str__(self) -> str:
-        return f"{(round(self._vector[0],0), round(self._vector[0],0))}"
+        return f"{(round(self._vector[0],0), round(self._vector[1],0))}"
     
     def __getitem__(self, index:int) -> int | float:
         """
@@ -63,6 +63,9 @@ class Vector():
         
         return Vector(self._vector * other)
     
+    def __matmul__(self, other: "Vector") -> "Vector":
+            return self.cross(other)
+
     def __truediv__(self, other:int | float) -> "Vector":
         """
         . result = vector1 / scalar
@@ -132,7 +135,7 @@ class Vector():
         
     def cross(self, other: "Vector"):
         self._validate_same_dimension(other)
-        return np.cross(self._vector, other._vector)
+        return Vector(np.cross(self._vector, other._vector))
     
     @property
     def normalized(self) -> "Vector":
