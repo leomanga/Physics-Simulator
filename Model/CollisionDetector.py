@@ -218,14 +218,13 @@ class CollisionManager():
     def _findSupportPoint(pol1, pol2, vertexIndex) -> tuple:
         maxDepth = CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[0])
         maxSupportPoint = pol2.vertexes[0]
-        maxNormal = pol1.normals[0]
         for i in range(1, pol2.numberOfSides):
             depth=CollisionManager._calculateDepth(pol1.vertexes[vertexIndex], pol1.normals[vertexIndex], pol2.vertexes[i])
             if depth > maxDepth:
                 maxDepth = depth
                 maxSupportPoint = pol2.vertexes[i]
-                maxNormal = pol1.normals[i]
-        return maxDepth, maxSupportPoint, maxNormal
+
+        return maxDepth, maxSupportPoint, pol1.normals[vertexIndex]
 
     @staticmethod
     def _calculateDepth(pol1Vertex, pol1Normal, pol2Vertex):
