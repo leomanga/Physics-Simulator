@@ -23,7 +23,7 @@ class Entity():
         self._mass: float = None
         self._inertia: float = None
 
-        self._contactPoint: Vector = None
+        self._contactInfo: Vector = None
         self._boundingBox: BoundingBox = BoundingBox()
 
         self._selected: bool = False
@@ -55,8 +55,8 @@ class Entity():
     def setAngularAcceleration(self, angAcceleration:int):
         self._angularAccelleration = angAcceleration
        
-    def setContactPoint(self, contactPoint:Vector):
-        self._contactPoint = contactPoint   
+    def setContactInfo(self, contactInfo):
+        self._contactInfo = contactInfo  
     
     def addForce(self, force: Vector):
         self._acceleration += force / self._mass
@@ -70,8 +70,8 @@ class Entity():
     def printItself(self, view, debug = False):
         if debug:
             view.drawText(round(self._mass), tuple(self._centerOfMass))
-            if self._contactPoint is not None:
-                view.drawPoint(tuple(self._contactPoint))
+            if self._contactInfo is not None:
+                view.drawInfo(self._contactInfo)
 
     def _updateMotions(self, deltaTime: float):
         self._velocity += self._acceleration * deltaTime
