@@ -41,7 +41,6 @@ class CollisionResolver():
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
         CollisionResolver._correctPosition(entity1, entity2, info)
-
         penetrationCentroidToEntity1: Vector = info.penetrationPoint - entity1.centerOfMass
         penetrationCentroidToEntity2: Vector = info.penetrationPoint - entity2.centerOfMass
 
@@ -54,7 +53,7 @@ class CollisionResolver():
         velocityEntity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1 # relative velocity of entity2 from entity1
         velocityEntity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
 
-        relativeVelocity = velocityEntity1 - velocityEntity2 # relative velocity of entity2 from entity1
+        relativeVelocity = velocityEntity2 - velocityEntity1 # relative velocity of entity2 from entity1
         relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
 
         if relativeVelocityAlongNormal > 0: # chech if the second entity is faster than the first
@@ -76,7 +75,7 @@ class CollisionResolver():
         impulseVector = info.penetrationNormal * impulse / 2
 
         impulseVectorEntity1 = -impulseVector / entity1.mass
-        impulseVectorEntity2 = impulseVector / entity2.mass
+        impulseVectorEntity2 = -impulseVector / entity2.mass
 
         entity1.setVelocity(entity1.velocity + impulseVectorEntity1)
         entity2.setVelocity(entity2.velocity + impulseVectorEntity2)

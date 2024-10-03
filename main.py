@@ -25,7 +25,7 @@ running = True
 
 while running:
     campo.move()
-    view.draw()
+    view.draw(False)
     view.update()
     eventHandler.handleEvents()
     """
