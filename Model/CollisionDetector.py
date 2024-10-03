@@ -40,7 +40,11 @@ class CollisionManager():
         if info is not None:
             #entity1.stopMotion()                        #entity2.stopMotion()
             #CollisionResolver.positionalCorrection(entity1, entity2, info)
+            entity1.stopMotion()
+            entity2.stopMotion()
+            
             CollisionResolver.manageImpulse(entity1, entity2, info)
+            
 
     @staticmethod
     def isPointInsideEntity(point:Vector, entity:"Entity") -> bool:
