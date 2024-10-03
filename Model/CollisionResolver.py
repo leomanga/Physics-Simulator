@@ -54,7 +54,7 @@ class CollisionResolver():
         velocityEntity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1 # relative velocity of entity2 from entity1
         velocityEntity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
 
-        relativeVelocity = velocityEntity1 - velocityEntity2 # relative velocity of entity2 from entity1
+        relativeVelocity = velocityEntity2 - velocityEntity1 # relative velocity of entity2 from entity1
         relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
 
         if relativeVelocityAlongNormal > 0: # chech if the second entity is faster than the first

@@ -1,6 +1,7 @@
 import pygame
 from datetime import datetime
 from icecream import ic
+from Model.ContactInfo import ContactInfo
 
 from Model.Entities.BoundingBox import BoundingBox
 
@@ -51,8 +52,10 @@ class View():
         #print(point2)
         pygame.draw.line(self._screen, color, point1, point2, 3)
 
-    def drawPoint(self, contactPoint):
-        self.drawCircle(contactPoint, 3, (255,170,170))
+    def drawInfo(self, contactInfo: ContactInfo):
+        self.drawCircle(contactInfo._penetrationPoint, 3, (255,170,170))
+        normalAdj = contactInfo._penetrationNormal*15
+        self.drawLine(tuple(contactInfo._penetrationPoint), tuple(contactInfo._penetrationPoint + normalAdj), (0,255,0) )
 
     def drawText(self, text, coord):
         textSurface = self._font.render(f"{text}", False, (0, 0, 0))

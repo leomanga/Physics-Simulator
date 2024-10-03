@@ -29,10 +29,10 @@ class CollisionManager():
 
         elif isinstance(entity1, Ball) and isinstance(entity2, Polygon):
             info = CollisionManager._manageCollisionBallVSPolygon(entity2, entity1)
-            entity1, entity2 = entity2, entity1
         
         elif isinstance(entity1, Polygon) and isinstance(entity2, Ball):
             info = CollisionManager._manageCollisionBallVSPolygon(entity1, entity2)
+            entity1, entity2 = entity2, entity1
     
         else:
             info = CollisionManager._manageCollisionBallVSBall(entity1, entity2)
@@ -147,8 +147,7 @@ class CollisionManager():
             contactInfo = contactInfo2
             contactInfo._penetrationNormal*=-1 # TODO: fare setter
         
-        pol1.setContactPoint(contactInfo.penetrationPoint)
-        pol2.setContactPoint(contactInfo.penetrationPoint)
+        pol1.setContactInfo(contactInfo)
         return contactInfo
  
     @staticmethod
