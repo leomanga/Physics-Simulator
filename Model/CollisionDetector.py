@@ -86,17 +86,16 @@ class CollisionManager():
 
     @staticmethod
     def _managePolygonVSBorder(polygon: Polygon, size: tuple):
+        inside = False
         for vertex in polygon.vertexes:
             if CollisionManager._isVertexInsideBorder(vertex, size):
-                #polygon.stopMotion()
-                polygon._velocity*=-0.5
-                polygon._angularVelocity*=-0.5
-                delta = polygon._velocity * 0.01
-                polygon._centerOfMass-=delta
-                for i in polygon._vertexes:
-                    i +=delta
-                return
-            
+                inside = True
+                break
+
+        if inside:
+            polygon._velocity *= -1
+            polygon._angularVelocity *= -1
+
     @staticmethod
     def _manageBallVSBorder(ball: Ball, size: tuple):
         if not CollisionManager._isBallCollidingBorder(ball, size):

@@ -40,7 +40,8 @@ class CollisionResolver():
         
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
-        #CollisionResolver._correctPosition(entity1, entity2, info)
+        #CollisionResolver.positionalCorrection(entity1, entity2, info)
+        CollisionResolver._correctPosition(entity1, entity2, info)
         #entity1.stopMotion()
         #entity2.stopMotion()
         #return
@@ -73,7 +74,6 @@ class CollisionResolver():
         restitutionSum = entity1.material.restituitionCoeff +  entity2.material.restituitionCoeff
 
         bounciness = 2 * restitutionProduct / restitutionSum
-        #bounciness = -1
 
         pToCentroidCrossNormal1 = penetrationCentroidToEntity1 @ info.penetrationNormal
         pToCentroidCrossNormal2 = penetrationCentroidToEntity2 @ info.penetrationNormal
@@ -97,5 +97,5 @@ class CollisionResolver():
         entity1.setVelocity(entity1.velocity + impulseVectorEntity1)
         entity2.setVelocity(entity2.velocity + impulseVectorEntity2)
 
-        entity1.setAngularVelocity(entity1.angularVelocity - pToCentroidCrossNormal1 * impulse / entity1.inertia)
+        entity1.setAngularVelocity(entity1.angularVelocity + pToCentroidCrossNormal1 * impulse / entity1.inertia)
         entity2.setAngularVelocity(entity2.angularVelocity + pToCentroidCrossNormal2 * impulse / entity2.inertia)

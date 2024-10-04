@@ -34,7 +34,7 @@ class Ball(Entity):
         view.drawCircle(tuple(self._centerOfMass), self._radius, color)   
 
         vector = self._centerOfMass + Vector((self._radius, 0))
-        directionVector = Utils.rotate(vector, self._centerOfMass, self._rotation)
+        directionVector = Utils.rotate(vector, self._centerOfMass, -self._rotation)
         view.drawLine(self._centerOfMass, directionVector, (0,0,0))
         
         if debug:
