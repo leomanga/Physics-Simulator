@@ -149,7 +149,8 @@ class CollisionManager():
             
         else:
             contactInfo = contactInfo2
-            contactInfo._penetrationNormal*=-1 # TODO: fare setter
+            
+            contactInfo._penetrationNormal = contactInfo._penetrationNormal*-1 # TODO: fare setter
         
         pol1.setContactInfo(contactInfo)
         return contactInfo
