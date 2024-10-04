@@ -1,6 +1,3 @@
-import asyncio
-
-from ..Utils import Utils
 from ..Vector import Vector
 from Model.Entities.Entity import Entity
 from Model.Entities.Polygons import Polygon
@@ -10,9 +7,6 @@ from icecream import ic
 class EntityGroup():
     def __init__(self):
         self._entities:list[Entity] = []
-        
-        self._loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._loop)
     
     def __getitem__(self, index) -> Entity:
         return self._entities[index]
@@ -45,8 +39,8 @@ class EntityGroup():
                     entity.setVelocity(entity.velocity + velocity)
             
     def move(self, deltaTime:float):
-        tasks = [entity.move(deltaTime) for entity in self._entities]
-        Utils.runAsyncTasks(self._loop, tasks)
+        for entity in self._entities:
+            entity.move(deltaTime)
     
     @property
     def entities(self) -> list["Entity"]:

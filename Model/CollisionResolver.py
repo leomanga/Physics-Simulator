@@ -35,12 +35,16 @@ class CollisionResolver():
     @staticmethod
     def _correctPosition(entity1: Entity, entity2: Entity, info: ContactInfo):
         push = info.penetrationNormal * info.penetrationDepth / 2
-        entity2.translate(push)
         entity1.translate(-push)
-
+        entity2.translate(push)
+        
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
-        CollisionResolver._correctPosition(entity1, entity2, info)
+        #CollisionResolver._correctPosition(entity1, entity2, info)
+        #entity1.stopMotion()
+        #entity2.stopMotion()
+        #return
+
         penetrationCentroidToEntity1: Vector = info.penetrationPoint - entity1.centerOfMass
         penetrationCentroidToEntity2: Vector = info.penetrationPoint - entity2.centerOfMass
 

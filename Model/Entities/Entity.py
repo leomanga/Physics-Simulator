@@ -83,7 +83,7 @@ class Entity():
     def _initMass(self):
         self._mass = self._area * self._material.density 
 
-    async def move(self, deltaTime: float):
+    def move(self, deltaTime: float):
         raise NotImplementedError("This method should be overridden by subclass")
 
     def _calculateArea(self):

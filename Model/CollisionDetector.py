@@ -54,14 +54,23 @@ class CollisionManager():
         else:
             return CollisionManager._isPointInsidePolygon(point, entity)
         
-    def _isPointInsidePolygon(point:"Vector", polygon:"Polygon"):
+    def _isPointInsidePolygon(point: "Vector", polygon: "Polygon"):
+        inside = False
         for i in range(polygon.numberOfSides):
-            depth = (point - polygon.vertexes[i]) * polygon.normals[i] * -1
-            if depth < 0:
-                return False
-        
-        return True
-    
+            v1 = polygon.vertexes[i]
+            v2 = polygon.vertexes[(i + 1) % polygon.numberOfSides]
+            
+            # Controllo se il raggio orizzontale interseca il lato del poligono
+            if (v1[1] > point[1]) != (v2[1] > point[1]):
+                # Calcola l'intersezione del raggio orizzontale con il lato del poligono
+                intersectX = v1[0] + (point[1] - v1[1]) * (v2[0] - v1[0]) / (v2[1] - v1[1])
+                
+                # Se il punto è a sinistra dell'intersezione o allineato con l'intersezione
+                if point[0] < intersectX:
+                    inside = not inside
+
+        return inside      
+
     @staticmethod
     def manageElementsVsBorderCollisions(entityGroup: EntityGroup, size: tuple):
         """
@@ -149,7 +158,7 @@ class CollisionManager():
             
         else:
             contactInfo = contactInfo2
-            contactInfo._penetrationNormal*=-1 # TODO: fare setter
+            contactInfo._penetrationNormal = contactInfo._penetrationNormal * -1 # TODO: fare setter
         
         pol1.setContactInfo(contactInfo)
         return contactInfo
