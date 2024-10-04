@@ -29,7 +29,7 @@ class Campo():
         self._entities.move(deltaTime.total_seconds())
         self._spatialGrid.resetGrids()
         self._spatialGrid.populateGrids()
-        self._manageCollisions()
+        self._manageCollisions2()
 
         self._manageBorderCollision()
 
@@ -38,7 +38,7 @@ class Campo():
             for neighbour in self._spatialGrid.getNeighbourEntities(i):
                 CollisionManager.manageCollisionFrom(entity, neighbour)
 
-            self._spatialGrid.clearEntity(i)
+            #self._spatialGrid.clearEntity(i)
 
     def _manageCollisions2(self):
         numberOfEntities = len(self._entities)
