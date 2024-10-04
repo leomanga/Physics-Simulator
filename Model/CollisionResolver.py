@@ -47,8 +47,8 @@ class CollisionResolver():
         normalizedPenetrationPoint1 = Vector((-penetrationCentroidToEntity1[1], penetrationCentroidToEntity1[0])) # Rotates the vector 90 degrees counterclockwise
         normalizedPenetrationPoint2 = Vector((-penetrationCentroidToEntity2[1], penetrationCentroidToEntity2[0])) # Rotates the vector 90 degrees counterclockwise
 
-        angularVelocityPenetrationCentroidEntity1 = normalizedPenetrationPoint1 * entity2.angularVelocity
-        angularVelocityPenetrationCentroidEntity2 = normalizedPenetrationPoint2 * entity1.angularVelocity
+        angularVelocityPenetrationCentroidEntity1 = normalizedPenetrationPoint1 * entity1.angularVelocity
+        angularVelocityPenetrationCentroidEntity2 = normalizedPenetrationPoint2 * entity2.angularVelocity
 
         velocityEntity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1 # relative velocity of entity2 from entity1
         velocityEntity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
@@ -75,7 +75,7 @@ class CollisionResolver():
         impulseVector = info.penetrationNormal * impulse / 2
 
         impulseVectorEntity1 = -impulseVector / entity1.mass
-        impulseVectorEntity2 = -impulseVector / entity2.mass
+        impulseVectorEntity2 = impulseVector / entity2.mass
 
         entity1.setVelocity(entity1.velocity + impulseVectorEntity1)
         entity2.setVelocity(entity2.velocity + impulseVectorEntity2)

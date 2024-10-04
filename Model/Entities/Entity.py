@@ -71,7 +71,7 @@ class Entity():
         if debug:
             view.drawText(round(self._mass), tuple(self._centerOfMass))
             if self._contactInfo is not None:
-                view.drawInfo(self._contactInfo)
+                view.drawInfo(self._contactInfo, self.centerOfMass)
 
     def _updateMotions(self, deltaTime: float):
         self._velocity += self._acceleration * deltaTime

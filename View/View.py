@@ -52,10 +52,11 @@ class View():
         #print(point2)
         pygame.draw.line(self._screen, color, point1, point2, 3)
 
-    def drawInfo(self, contactInfo: ContactInfo):
-        self.drawCircle(contactInfo._penetrationPoint, 3, (255,170,170))
-        normalAdj = contactInfo._penetrationNormal*15
-        self.drawLine(tuple(contactInfo._penetrationPoint), tuple(contactInfo._penetrationPoint + normalAdj), (0,255,0) )
+    def drawInfo(self, contactInfo: ContactInfo, centerOfMass):
+        self.drawCircle(contactInfo._penetrationPoint, 10, (255,170,170))
+        self.drawCircle(centerOfMass, 10, (255,170,170))
+        normalAdj = contactInfo._penetrationNormal*300
+        self.drawLine(tuple(contactInfo._penetrationPoint), tuple(contactInfo._penetrationPoint + normalAdj), (0,255,90) )
 
     def drawText(self, text, coord):
         textSurface = self._font.render(f"{text}", False, (0, 0, 0))
