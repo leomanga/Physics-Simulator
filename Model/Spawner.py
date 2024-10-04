@@ -14,7 +14,7 @@ class Spawner:
         q1.setVelocity((50,0))
         self._campo.addEntity(q1)
 
-        q2 = RegularPolygon(40, (400,220), 45, 4, solidGroup.wood)
+        q2 = RegularPolygon(40, (400,220), 56, 4, solidGroup.wood)
         q2.setVelocity((-40,0))
         self._campo.addEntity(q2)
 
