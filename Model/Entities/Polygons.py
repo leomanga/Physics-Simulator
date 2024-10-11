@@ -37,7 +37,7 @@ class Polygon(Entity, ABC):
         for i in range(self._numberOfSides):
             self._vertexes[i] += delta
 
-    async def move(self, deltaTime:float):
+    def move(self, deltaTime:float):
         self._updateMotions(deltaTime)
 
         deltaSpace = self._velocity * deltaTime

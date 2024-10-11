@@ -25,7 +25,7 @@ class Ball(Entity):
     def __str__(self):
         return f"Ball, {super().__str__()}"
     
-    async def move(self, deltaTime:float):
+    def move(self, deltaTime:float):
         self._updateMotions(deltaTime)
         self._boundingBox.setBallBox(self._centerOfMass, self.radius)
 

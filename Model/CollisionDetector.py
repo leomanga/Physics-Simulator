@@ -54,14 +54,23 @@ class CollisionManager():
         else:
             return CollisionManager._isPointInsidePolygon(point, entity)
         
-    def _isPointInsidePolygon(point:"Vector", polygon:"Polygon"):
+    def _isPointInsidePolygon(point: "Vector", polygon: "Polygon"):
+        inside = False
         for i in range(polygon.numberOfSides):
-            depth = (point - polygon.vertexes[i]) * polygon.normals[i] * -1
-            if depth < 0:
-                return False
-        
-        return True
-    
+            v1 = polygon.vertexes[i]
+            v2 = polygon.vertexes[(i + 1) % polygon.numberOfSides]
+            
+            # Controllo se il raggio orizzontale interseca il lato del poligono
+            if (v1[1] > point[1]) != (v2[1] > point[1]):
+                # Calcola l'intersezione del raggio orizzontale con il lato del poligono
+                intersectX = v1[0] + (point[1] - v1[1]) * (v2[0] - v1[0]) / (v2[1] - v1[1])
+                
+                # Se il punto è a sinistra dell'intersezione o allineato con l'intersezione
+                if point[0] < intersectX:
+                    inside = not inside
+
+        return inside      
+
     @staticmethod
     def manageElementsVsBorderCollisions(entityGroup: EntityGroup, size: tuple):
         """
@@ -77,17 +86,16 @@ class CollisionManager():
 
     @staticmethod
     def _managePolygonVSBorder(polygon: Polygon, size: tuple):
+        inside = False
         for vertex in polygon.vertexes:
             if CollisionManager._isVertexInsideBorder(vertex, size):
-                #polygon.stopMotion()
-                polygon._velocity*=-0.5
-                polygon._angularVelocity*=-0.5
-                delta = polygon._velocity * 0.01
-                polygon._centerOfMass-=delta
-                for i in polygon._vertexes:
-                    i +=delta
-                return
-            
+                inside = True
+                break
+
+        if inside:
+            polygon._velocity *= -1
+            polygon._angularVelocity *= -1
+
     @staticmethod
     def _manageBallVSBorder(ball: Ball, size: tuple):
         if not CollisionManager._isBallCollidingBorder(ball, size):
@@ -149,8 +157,7 @@ class CollisionManager():
             
         else:
             contactInfo = contactInfo2
-            
-            contactInfo._penetrationNormal = contactInfo._penetrationNormal*-1 # TODO: fare setter
+            contactInfo._penetrationNormal = contactInfo._penetrationNormal * -1 # TODO: fare setter
         
         pol1.setContactInfo(contactInfo)
         return contactInfo

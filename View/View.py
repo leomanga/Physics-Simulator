@@ -50,7 +50,7 @@ class View():
     
     def drawLine(self, point1:tuple, point2:tuple, color:tuple=baseColor):
         #print(point2)
-        pygame.draw.line(self._screen, color, point1, point2, 3)
+        pygame.draw.line(self._screen, color, point1, point2, 2)
 
     def drawInfo(self, contactInfo: ContactInfo, centerOfMass):
         self.drawCircle(contactInfo._penetrationPoint, 10, (255,170,170))

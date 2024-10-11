@@ -84,6 +84,7 @@ class Vector():
         """
         . vector1 += vector2
         """
+        return Vector(self._vector + other._vector)
         self._vector = self._vector + other._vector
         self._norm = np.linalg.norm(self._vector)
         return self
@@ -92,6 +93,7 @@ class Vector():
         """
         . vector1 -= vector2
         """
+        return Vector(self._vector - other._vector)
         self._vector = self._vector - other._vector
         self._norm = np.linalg.norm(self._vector)
         return self
@@ -100,6 +102,7 @@ class Vector():
         """
         . vector *= scalar
         """
+        return Vector(self._vector * other)
         self._vector = self._vector * other
         self._norm = np.linalg.norm(self._vector)
         return self
@@ -108,6 +111,8 @@ class Vector():
         """
         . vector /= scalar
         """
+        return Vector(self._vector / other)
+
         self._vector = self._vector / other
         self._norm = np.linalg.norm(self._vector)
         return self

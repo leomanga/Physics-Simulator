@@ -70,6 +70,7 @@ class Entity():
     def printItself(self, view, debug = False):
         if debug:
             view.drawText(round(self._mass), tuple(self._centerOfMass))
+            view.drawLine(self._centerOfMass, self._centerOfMass + self._velocity, (190,0,123))
             if self._contactInfo is not None:
                 view.drawInfo(self._contactInfo, self.centerOfMass)
 
@@ -83,7 +84,7 @@ class Entity():
     def _initMass(self):
         self._mass = self._area * self._material.density 
 
-    async def move(self, deltaTime: float):
+    def move(self, deltaTime: float):
         raise NotImplementedError("This method should be overridden by subclass")
 
     def _calculateArea(self):
