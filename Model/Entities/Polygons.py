@@ -45,8 +45,8 @@ class Polygon(Entity, ABC):
 
         for i in range(self._numberOfSides):
             movedVertex = self._vertexes[i] + deltaSpace
-            self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, -deltaAngle)
-            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), -deltaAngle) 
+            self._vertexes[i] = Utils.rotate(movedVertex, self._centerOfMass, deltaAngle)
+            self._normals[i] = Utils.rotate(self._normals[i], VectorZero(), deltaAngle) 
 
         self._boundingBox.setPolygonBox(self._vertexes)    
 

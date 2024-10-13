@@ -10,11 +10,11 @@ class Spawner:
     def spawnEntities(self):
         solidGroup = SolidGroup()
 
-        q1 = RegularPolygon(50, (200,200), 45, 4, solidGroup.wood)
+        q1 = RegularPolygon(40, (200,200), 45, 4, solidGroup.wood)
         q1.setVelocity((50,0))
         self._campo.addEntity(q1)
 
-        q2 = RegularPolygon(40, (400,220), 54, 4, solidGroup.wood)
+        q2 = RegularPolygon(50, (400,220), 45, 4, solidGroup.wood)
         q2.setVelocity((-40,0))
         self._campo.addEntity(q2)
 

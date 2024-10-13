@@ -40,11 +40,59 @@ class CollisionResolver():
         
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
-        #CollisionResolver.positionalCorrection(entity1, entity2, info)
         CollisionResolver._correctPosition(entity1, entity2, info)
-        #entity1.stopMotion()
-        #entity2.stopMotion()
-        #return
+
+
+
+        penetrationToCentroid1 = info.penetrationPoint - entity1.centerOfMass
+        penetrationToCentroid2 = info.penetrationPoint - entity2.centerOfMass
+
+
+        normalizedPenetrationPoint1 = Vector((-penetrationToCentroid1[1], penetrationToCentroid1[0])) # Rotates the vector 90 degrees counterclockwise
+        normalizedPenetrationPoint2 = Vector((-penetrationToCentroid2[1], penetrationToCentroid2[0])) # Rotates the vector 90 degrees counterclockwise
+
+        angularVelocityPenetrationCentroidEntity1 = normalizedPenetrationPoint1 * entity1.angularVelocity
+        angularVelocityPenetrationCentroidEntity2 = normalizedPenetrationPoint2 * entity2.angularVelocity
+
+        velocity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1
+        velocity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
+
+        relativeVelocity = velocity2 - velocity1
+        relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
+        
+        if relativeVelocityAlongNormal > 0:
+            return
+        
+        restutution = 2 * (entity1.material.restituitionCoeff * entity2.material.restituitionCoeff) / (entity1.material.restituitionCoeff + entity2.material.restituitionCoeff)
+
+        pToCentroidAcrossNormal1 = penetrationToCentroid1 @ info.penetrationNormal
+        pToCentroidAcrossNormal2 = penetrationToCentroid2 @ info.penetrationNormal
+
+        invMassSum = 1/entity1.mass + 1/entity2.mass
+
+        crossNSum = pToCentroidAcrossNormal1 * pToCentroidAcrossNormal1 / entity1.inertia + pToCentroidAcrossNormal2 * pToCentroidAcrossNormal2 / entity2.inertia
+
+        impulse = -(1+restutution) * relativeVelocityAlongNormal / (invMassSum + crossNSum)
+
+        impulseVector = info.penetrationNormal * impulse
+
+        ic(impulseVector)
+
+        impulse1 = -impulseVector / entity1.mass
+        impulse2 = impulseVector / entity2.mass
+
+        ic(impulse1, entity1.mass)
+        entity1.setVelocity(entity1.velocity + impulse1)
+        entity2.setVelocity(entity2.velocity + impulse2)
+
+        entity1.setAngularVelocity(entity1.angularVelocity - pToCentroidAcrossNormal1 * impulse / entity1.inertia)
+        entity2.setAngularVelocity(entity2.angularVelocity + pToCentroidAcrossNormal2 * impulse / entity2.inertia)
+
+
+
+    @staticmethod
+    def manageImpulse2(entity1: Entity, entity2: Entity, info: ContactInfo):
+        CollisionResolver._correctPosition(entity1, entity2, info)
 
         penetrationCentroidToEntity1: Vector = info.penetrationPoint - entity1.centerOfMass
         penetrationCentroidToEntity2: Vector = info.penetrationPoint - entity2.centerOfMass
@@ -60,16 +108,11 @@ class CollisionResolver():
         """andrebbe sommato"""
 
         relativeVelocity = velocityEntity2 - velocityEntity1 # relative velocity of entity2 from entity1
-        #print(relativeVelocity)
-        #print(info.penetrationNormal)
         relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
-        #print(relativeVelocityAlongNormal)
 
         if relativeVelocityAlongNormal > 0: # chech if the second entity is faster than the first
             return
-        
-        #ic(relativeVelocityAlongNormal)
-        
+                
         restitutionProduct = entity1.material.restituitionCoeff * entity2.material.restituitionCoeff
         restitutionSum = entity1.material.restituitionCoeff +  entity2.material.restituitionCoeff
 
@@ -77,6 +120,8 @@ class CollisionResolver():
 
         pToCentroidCrossNormal1 = penetrationCentroidToEntity1 @ info.penetrationNormal
         pToCentroidCrossNormal2 = penetrationCentroidToEntity2 @ info.penetrationNormal
+
+        ic(pToCentroidCrossNormal1, pToCentroidCrossNormal2)
 
         crossNSum1 = pToCentroidCrossNormal1 * pToCentroidCrossNormal1 / entity1.inertia
         crossNSum2 = pToCentroidCrossNormal2 * pToCentroidCrossNormal2 / entity2.inertia
@@ -97,5 +142,5 @@ class CollisionResolver():
         entity1.setVelocity(entity1.velocity + impulseVectorEntity1)
         entity2.setVelocity(entity2.velocity + impulseVectorEntity2)
 
-        entity1.setAngularVelocity(entity1.angularVelocity + pToCentroidCrossNormal1 * impulse / entity1.inertia)
+        entity1.setAngularVelocity(entity1.angularVelocity - pToCentroidCrossNormal1 * impulse / entity1.inertia)
         entity2.setAngularVelocity(entity2.angularVelocity + pToCentroidCrossNormal2 * impulse / entity2.inertia)
