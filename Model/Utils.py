@@ -19,7 +19,7 @@ class Utils():
     def rotate(vertex, point, rotationAngle):
         direction = vertex - point
         x = direction[0] * Utils.cos(rotationAngle) - direction[1] * Utils.sin(rotationAngle)
-        y = direction[0] * Utils.sin(rotationAngle) + direction[1] * Utils.cos(rotationAngle)       
+        y = direction[0] * Utils.sin(rotationAngle) + direction[1] * Utils.cos(rotationAngle)
         return Vector((x, y)) + point
     
     def ProjectEntityVertexes(direction:np.ndarray, vertexes:list[np.ndarray]) -> tuple[np.ndarray]: 
