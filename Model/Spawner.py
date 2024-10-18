@@ -11,11 +11,11 @@ class Spawner:
         solidGroup = SolidGroup()
 
         q1 = RegularPolygon(40, (200,200), 45, 4, solidGroup.wood)
-        q1.setVelocity((50,0))
+        q1.setVelocity((200,0))
         self._campo.addEntity(q1)
 
-        q2 = RegularPolygon(50, (400,220), 45, 4, solidGroup.wood)
-        q2.setVelocity((-40,0))
+        q2 = RegularPolygon(50, (400,220), 56, 4, solidGroup.wood)
+        q2.setVelocity((-150,0))
         self._campo.addEntity(q2)
 
         """ for row in range(10):  # Numero di righe della piramide

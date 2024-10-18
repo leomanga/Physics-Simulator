@@ -45,3 +45,11 @@ class EntityGroup():
     @property
     def entities(self) -> list["Entity"]:
         return self._entities
+    
+    @property
+    def totalEnergy(self) -> float:
+        totalEnergy = 0
+        for e in self._entities:
+            totalEnergy += e.kineticEnergy
+        
+        return totalEnergy

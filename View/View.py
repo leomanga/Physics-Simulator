@@ -58,6 +58,7 @@ class View():
         normalAdj = contactInfo._penetrationNormal*300
         self.drawLine(tuple(contactInfo._penetrationPoint), tuple(contactInfo._penetrationPoint + normalAdj), (0,255,90) )
 
+
     def drawText(self, text, coord):
         textSurface = self._font.render(f"{text}", False, (0, 0, 0))
         self._screen.blit(textSurface, coord)
@@ -72,6 +73,8 @@ class View():
 
         if debug:
             self._drawGrids()
+            totalEnergy = self._campo.totalEnergy
+            self.drawText(f"totalEnergy: {round(totalEnergy)}", (0,30))
             
         self._printFps()    
 

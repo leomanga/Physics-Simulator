@@ -144,4 +144,10 @@ class Entity():
 
     @property
     def inertia(self) -> float:
-        return self._inertia
+        return self._inertia 
+    
+    @property
+    def kineticEnergy(self):
+        translationalEnergy = 0.5 * self._mass * (self._velocity.norm ** 2)
+        rotationalEnergy = 0.5 * self._inertia * (self._angularVelocity ** 2)
+        return translationalEnergy + rotationalEnergy

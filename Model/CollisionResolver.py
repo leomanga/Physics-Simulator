@@ -40,55 +40,59 @@ class CollisionResolver():
         
     @staticmethod
     def manageImpulse(entity1: Entity, entity2: Entity, info: ContactInfo):
+        # Corregge la penetrazione prima di gestire l'impulso
         CollisionResolver._correctPosition(entity1, entity2, info)
 
+        # Energia cinetica iniziale
+        k1 = entity1.kineticEnergy + entity2.kineticEnergy
 
+        # Vettori dalla penetrazione al centro di massa
+        r1 = info.penetrationPoint - entity1.centerOfMass
+        r2 = info.penetrationPoint - entity2.centerOfMass
 
-        penetrationToCentroid1 = info.penetrationPoint - entity1.centerOfMass
-        penetrationToCentroid2 = info.penetrationPoint - entity2.centerOfMass
+        # Rotazione dei vettori per ottenere la velocità angolare al punto di collisione
+        angularVelocityPenetration1 = Vector((-r1[1], r1[0])) * entity1.angularVelocity
+        angularVelocityPenetration2 = Vector((-r2[1], r2[0])) * entity2.angularVelocity
 
+        # Velocità totale (lineare + angolare) al punto di collisione
+        velocity1 = entity1.velocity + angularVelocityPenetration1
+        velocity2 = entity2.velocity + angularVelocityPenetration2
 
-        normalizedPenetrationPoint1 = Vector((-penetrationToCentroid1[1], penetrationToCentroid1[0])) # Rotates the vector 90 degrees counterclockwise
-        normalizedPenetrationPoint2 = Vector((-penetrationToCentroid2[1], penetrationToCentroid2[0])) # Rotates the vector 90 degrees counterclockwise
-
-        angularVelocityPenetrationCentroidEntity1 = normalizedPenetrationPoint1 * entity1.angularVelocity
-        angularVelocityPenetrationCentroidEntity2 = normalizedPenetrationPoint2 * entity2.angularVelocity
-
-        velocity1 = entity1.velocity + angularVelocityPenetrationCentroidEntity1
-        velocity2 = entity2.velocity + angularVelocityPenetrationCentroidEntity2
-
+        # Calcolo della velocità relativa e della sua componente lungo la normale
         relativeVelocity = velocity2 - velocity1
         relativeVelocityAlongNormal = relativeVelocity * info.penetrationNormal
-        
+
+        # Se la velocità relativa è positiva, i corpi si stanno già separando
         if relativeVelocityAlongNormal > 0:
             return
-        
-        restutution = 2 * (entity1.material.restituitionCoeff * entity2.material.restituitionCoeff) / (entity1.material.restituitionCoeff + entity2.material.restituitionCoeff)
 
-        pToCentroidAcrossNormal1 = penetrationToCentroid1 @ info.penetrationNormal
-        pToCentroidAcrossNormal2 = penetrationToCentroid2 @ info.penetrationNormal
+        restitutionProduct = entity1.material.restituitionCoeff * entity2.material.restituitionCoeff
+        restitutionSum = entity1.material.restituitionCoeff +  entity2.material.restituitionCoeff
 
-        invMassSum = 1/entity1.mass + 1/entity2.mass
+        bounciness = 2 * restitutionProduct / restitutionSum
 
-        crossNSum = pToCentroidAcrossNormal1 * pToCentroidAcrossNormal1 / entity1.inertia + pToCentroidAcrossNormal2 * pToCentroidAcrossNormal2 / entity2.inertia
+        # Momenti rispetto al punto di collisione proiettati sulla normale
+        r1CrossNormal = r1 @ info.penetrationNormal
+        r2CrossNormal = r2 @ info.penetrationNormal
 
-        impulse = -(1+restutution) * relativeVelocityAlongNormal / (invMassSum + crossNSum)
+        # Somma delle masse inverse e degli effetti angolari sull'impulso
+        invMassSum = 1 / entity1.mass + 1 / entity2.mass
+        rotationalEffect = (r1CrossNormal ** 2) / entity1.inertia + (r2CrossNormal ** 2) / entity2.inertia
 
-        impulseVector = info.penetrationNormal * impulse
+        # Denominatore dell'impulso, tenendo conto della massa e dell'inerzia
+        impulseDenominator = invMassSum + rotationalEffect
 
-        ic(impulseVector)
+        # Calcolo dell'impulso usando il coefficiente di restituzione
+        impulseMagnitude = -(1 + bounciness) * relativeVelocityAlongNormal / impulseDenominator
+        impulseVector = info.penetrationNormal * impulseMagnitude
 
-        impulse1 = -impulseVector / entity1.mass
-        impulse2 = impulseVector / entity2.mass
+        # Aggiornamento delle velocità lineari
+        entity1.setVelocity(entity1.velocity - impulseVector / entity1.mass)
+        entity2.setVelocity(entity2.velocity + impulseVector / entity2.mass)
 
-        ic(impulse1, entity1.mass)
-        entity1.setVelocity(entity1.velocity + impulse1)
-        entity2.setVelocity(entity2.velocity + impulse2)
-
-        entity1.setAngularVelocity(entity1.angularVelocity - pToCentroidAcrossNormal1 * impulse / entity1.inertia)
-        entity2.setAngularVelocity(entity2.angularVelocity + pToCentroidAcrossNormal2 * impulse / entity2.inertia)
-
-
+        # Aggiornamento delle velocità angolari
+        entity1.setAngularVelocity(entity1.angularVelocity - (r1CrossNormal * impulseMagnitude / entity1.inertia))
+        entity2.setAngularVelocity(entity2.angularVelocity + (r2CrossNormal * impulseMagnitude / entity2.inertia))
 
     @staticmethod
     def manageImpulse2(entity1: Entity, entity2: Entity, info: ContactInfo):
@@ -130,6 +134,7 @@ class CollisionResolver():
         #ic(-(1+bounciness) * relativeVelocityAlongNormal)
         #ic(1/entity1.mass + 1/entity2.mass + crossNSum)
         
+        bounciness = 1
 
         impulse = -(1+bounciness) * relativeVelocityAlongNormal / (1/entity1.mass + 1/entity2.mass + crossNSum)
         impulseVector = info.penetrationNormal * impulse / 2

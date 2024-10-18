@@ -11,6 +11,7 @@ class Campo():
     def __init__(self, composition: Fluid, size:tuple):
         self._entities : EntityGroup = EntityGroup()# CLASSE
 
+        self._totalEnergy = 0
         self._composition : Fluid = composition
         self._size = size
         self._spatialGrid = SpatialGrid(size, (5,5), self._entities)
@@ -33,6 +34,8 @@ class Campo():
 
         self._manageBorderCollision()
 
+        self._updateTotalEnergy()
+
     def _manageCollisions(self):
         for i, entity in enumerate(self._entities):
             for neighbour in self._spatialGrid.getNeighbourEntities(i):
@@ -52,9 +55,13 @@ class Campo():
 
     def addEntity(self, entity):
         self._entities.addEntity(entity)
+        self._updateTotalEnergy()
     
     def manageClick(self, point:tuple):
         self._entities.manageClick(Vector(point))
+
+    def _updateTotalEnergy(self):
+        self._totalEnergy = self._entities.totalEnergy
 
     @property
     def entities(self) -> list:
@@ -68,3 +75,6 @@ class Campo():
     def spatialGrid(self) -> SpatialGrid:
         return self._spatialGrid
 
+    @property
+    def totalEnergy(self) -> float:
+        return self._totalEnergy
