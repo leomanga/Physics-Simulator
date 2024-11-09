@@ -33,8 +33,6 @@ To add new entities to the simulation, use the ```Spawner``` class located in ``
 # Future Enhancements
 Here's a list of planned features and improvements:
    - [ ] Add acceleration to the field
-   - [ ] Collision management
-       - [ ] Bounces
    - [ ] Friction management
        - [ ] With air
        - [ ] With solids
